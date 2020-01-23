@@ -1,0 +1,54 @@
+tree.species,tree.latin,tree.common,tree.scientific,tree.scientific.update,tree.origin,tree.origin.update,origin.note,total.abundance
+alaska.cedar,chamaecyparis.nootkatensis,Alaska cedar,Cupressus nootkatensis,Callitropsis nootkatensis  ,native,,more mountains than lowlands tho,0
+amur.maple,acer.ginnala,Amur maple,Acer ginnala,,non.native,,"asia, can be understory invasive",0
+beech,fagus.sp,Beech,Fagus sylvatica gp.,,non.native,,"native to europe, asia, and eastern north america; european beech is most commonly cultivated.",0
+big.leaf.maple,acer.macrophyllum,Bigleaf maple,Acer macrophyllum,,native,,,0
+black.cottonwood,populus.trichocarpa,Black cottonwood,Populus trichocarpa,,native,,,0
+black.locust,robinia.pseudoacacia,Black locust,Robinia pseudoacacia,,non.native,,southeastern US,0
+black.pine,pinus.nigra,Black pine,Pinus nigra,,non.native,,,0
+cedar.1,unknown.cedar.1,Cedar 1,Unknown Cedar 1,,ambiguous,,,0
+cedar.2,unknown.cedar.2,Cedar 2,Unknown Cedar 2,,ambiguous,,,0
+deodar.cedar,cedrus.deodara,Deodar cedar,Cedrus deodara,,non.native,,asia; india/pakistan/afghanistan etc.,0
+douglas.fir,pseudotsuga.menziesii,Douglas fir,Pseudotsuga menziesii,,native,,,0
+elm,ulmus.sp,Elm sp.,Ulmus sp.,,non.native,,"eastern us; asia, europe",0
+european.mountain.ash,sorbus.aucuparia,European mountain ash,Sorbus aucuparia,,non.native,,"asia, africa, europe",0
+green.ash,fraxinus.pennsylvanica,Green ash,Fraxinus pennsylvanica,,non.native,,eastern us,0
+honey.locust,gleditsia.triacanthos,Honey locust,Gleditsia triacanthos,,non.native,,eastern us,0
+hornbeam,carpinus.sp,Hornbeam,Carpinus sp.,,non.native,,"eastern us, asia, europe",0
+katsuratree,cercidiphyllum.japonicum,Katsura,Cercidiphyllum japonicum,,non.native,,asia,0
+linden,tilia.sp,Linden sp.,Tilia sp.,,non.native,,"europe, asia, eastern US",0
+lombardy.poplar,populus.nigra.italica,Lombardy poplar,Populus nigra,,non.native,,"europe, asia, africa",0
+malus.sp,malus.sp,Apple sp.,Malus sp.,,non.native,,some native (Malus fusca); most landscaping varieties native to China or central asia,0
+norway.maple,acer.platanoides,Norway maple,Acer platanoides,,non.native,,europe and asia,0
+pacific.madrone,arbutus.menziesii,Pacific madrone,Arbutus menziesii,,native,,,0
+pacific.yew,taxus.brevifolia,Pacific yew,Taxus brevifolia,,native,,,0
+paper.birch,betula.papyrifera,Paper birch,Betula papyrifera,,native,,we are at the extreme southern end of the range,0
+pin.oak,quercus.palustris.gp,Pin oak,Quercus palustris,,non.native,,eastern US,0
+prunus.sp,prunus.sp,Flowering plum or cherry,Prunus sp.,Prunus subg. Cerasus,non.native,,many cultivated species from asia; central asia; see https://www.jstor.org/stable/pdf/3093861.pdf?refreqid=excelsior%3A1bd385402d08f0beeda791f896aca1a0,0
+prunus.tree,prunus.tree,Choke cherries,Prunus subg. Padus,,ambiguous,non-native,Prunus virginiana native to US but USFS maps suggest not native to King county; eastern and western subspecies with potential range in Puget Sound region; see https://link.springer.com/article/10.1007%2Fs10265-012-0535-1 for naming justification,0
+purple.beech,fagus.sylvatica,Purple beech,Fagus sylvatica,,non.native,,europe,0
+quaking.aspen,populus.tremuloides,Quaking aspen,Populus tremuloides,,ambiguous,non-native,native on eastern side of the cascades; not native to King County,0
+red.alder,alnus.rubra,Red alder,Alnus rubra,,native,,,0
+red.birch,betula.occidentalis,Red birch,Betula occidentalis,,ambiguous,non-native,range map shows populations east of cascades--not native to king county,0
+red.maple,acer.rubrum,Red maple,Acer rubrum,,non.native,,eastern us,0
+red.oak,quercus.rubra,Red oak,Quercus rubra,,non.native,,eastern us,0
+redbud,cercis.canadensis,Redbud,Cercis canadensis,,non.native,,"eastern us, europe and asia; some in southwest us",0
+scots.pine,pinus.sylvestris,Scots pine,Pinus sylvestris,,non.native,,europe and siberia,0
+shore.pine,pinus.contorta,Shore pine,Pinus contorta,,native,,,0
+silver.birch,betula.pendula,Silver birch,Betula pendula,,non.native,,europe and asia,0
+southern.magnolia,magnolia.grandiflora,Southern magnolia,Magnolia grandiflora,,non.native,,southeastern US,0
+sugar.maple,acer.saccharum,Sugar maple,Acer saccharum,,non.native,,eastern US,0
+sweetgum,liquidambar.styraciflua,Sweetgum,Liquidambar styraciflua,,non.native,,"asia, europe, and eastern us",0
+sycamore,platanus.occidentalis,American sycamore,Platanus occidentalis,,non.native,,"asia, eastern us, some in southwest us",0
+tulip.tree,liriodendron.tulipifera,Tulip tree,Liriodendron tulipifera,,non.native,,eastern us,0
+unknown.broadleaf.1,unknown.broadleaf.1,Unknown broadleaf 1,Unknown Broadleaf 1,,ambiguous,,,0
+unknown.broadleaf.2,unknown.broadleaf.2,Unknown broadleaf 2,Unknown Broadleaf 2,,ambiguous,,,0
+unknown.broadleaf.3,unknown.broadleaf.3,Unknown broadleaf 3,Unknown Broadleaf 3,,ambiguous,,,0
+unknown.broadleaf.4,unknown.broadleaf.4,Unknown broadleaf 4,Unknown Broadleaf 4,,ambiguous,,,0
+unknown.broadleaf.5,unknown.broadleaf.5,Unknown broadleaf 5,Unknown Broadleaf 5,,ambiguous,,,0
+unknown.broadleaf.6,unknown.broadleaf.6,Unknown broadleaf 6,Unknown Broadleaf 6,,ambiguous,,,0
+weeping.serbian.spruce,picea.omorika,Weeping Serbian spruce,Picea omorika,,non.native,,europe,0
+western.hemlock,tsuga.heterophylla,Western hemlock,Tsuga heterophylla,,native,,,0
+western.red.cedar,thuja.plicata,Western red cedar,Thuja plicata,,native,,,0
+white.ash,fraxinus.americana,White ash,Fraxinus americana,,non.native,,eastern us,0
+white.pine,pinus.strobus,White pine,Pinus strobus,Pinus subs. Strobus,ambiguous,,could be eastern white pine (Pinus strobus; could potentially be western white pine Pinus monticola),0

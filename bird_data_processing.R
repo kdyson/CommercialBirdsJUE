@@ -12,17 +12,21 @@
 ## -- SETUP ----------------------------------------------------------------------
 
 ## Source helper R codes
-source("../R_Scripts/triplet_fixer.R")
-source("../Vegetation/vegetation_data_processing.R")
-remove(dens.matrify.tree.sp.size, dens.tree.biomass, matrify.large.trees,
-       matrify.shrub.zones, matrify.tree.sp.size #,
-       #matrify.shrub.site, matrify.tree.sp.only, matrify.gc
+source("../../../../RCode/R_Scripts/triplet_fixer.R")
+source("VegetationData/vegetation_data_processing_Combined.R")
+
+remove(
+    count.tree.type,
+    dens.matrify.tree.sp.size,
+    DF.site.measures,
+    matrify.large.trees,
+    matrify.shrub.zones,
+    matrify.tree.sp.size
 )
 
-
-setwd("../Birds")
-options(scipen = 999)
-options(tibble.width = Inf)
+    ## Set options
+        options(scipen = 999)
+        options(tibble.width = Inf)
 
 
     ## Load necessary libraries
@@ -36,30 +40,29 @@ options(tibble.width = Inf)
         write.all <- FALSE
 
 
-
-        ## -- ENVIRONMENTAL VARIABLES ----------------------------------------------------------------
+## -- ENVIRONMENTAL VARIABLES ----------------------------------------------------------------
 
 
         Dec_14 <-
-            read.csv(file = "../../DataRepository/WeatherData/Hourly_WSU_W21/AWN_Dec_14.csv",
+            read.csv(file = "WeatherData/Hourly_WSU_W21/AWN_Dec_14.csv",
                      stringsAsFactors = F)
         Dec_15 <-
-            read.csv(file = "../../DataRepository/WeatherData/Hourly_WSU_W21/AWN_Dec_15.csv",
+            read.csv(file = "WeatherData/Hourly_WSU_W21/AWN_Dec_15.csv",
                      stringsAsFactors = F)
         Jan_15 <-
-            read.csv(file = "../../DataRepository/WeatherData/Hourly_WSU_W21/AWN_Jan_15.csv",
+            read.csv(file = "WeatherData/Hourly_WSU_W21/AWN_Jan_15.csv",
                      stringsAsFactors = F)
         Jan_16 <-
-            read.csv(file = "../../DataRepository/WeatherData/Hourly_WSU_W21/AWN_Jan_16.csv",
+            read.csv(file = "WeatherData/Hourly_WSU_W21/AWN_Jan_16.csv",
                      stringsAsFactors = F)
         Feb_15 <-
-            read.csv(file = "../../DataRepository/WeatherData/Hourly_WSU_W21/AWN_Feb_15.csv",
+            read.csv(file = "WeatherData/Hourly_WSU_W21/AWN_Feb_15.csv",
                      stringsAsFactors = F)
         Feb_16 <-
-            read.csv(file = "../../DataRepository/WeatherData/Hourly_WSU_W21/AWN_Feb_16.csv",
+            read.csv(file = "WeatherData/Hourly_WSU_W21/AWN_Feb_16.csv",
                      stringsAsFactors = F)
 
-        ## Create and join a weather data set based on hourly data from WSU_W21
+    ## Create and join a weather data set based on hourly data from WSU_W21
 
         # Join all data sets
         Weather_Hour <-
@@ -105,6 +108,24 @@ options(tibble.width = Inf)
         str(Weather_Hour) # should have 4362 observations; note raw downloaded data may have double data entries.
 
 
+## 
+        dens.matrify.gc <- read.csv("VegetationData/matrify_gc.csv",
+                                    stringsAsFactors = F) %>%
+            mutate(dense.veg.pct = dense.veg/total.area,
+                   dirt.litter.pct = dirt.litter/total.area,
+                   grass.pct = grass/total.area,
+                   gravel.pct = gravel/total.area,
+                   ivy.pct = ivy/total.area,
+                   mulch.pct = mulch/total.area,
+                   water.pct = water/total.area,
+                   impervious.pct = impervious.sqft/total.area,
+                   pervious.pct = pervious.sqft/total.area)
+        
+        colnames(dens.matrify.gc)[1] <- "site.abbr"
+        colnames(dens.matrify.gc)[11] <- "total.area.sqft"
+        
+        
+        
     # Create the native conifer density variable
 
 
@@ -117,9 +138,11 @@ options(tibble.width = Inf)
 
 
         # Create the native shrub density variable
+
+        colnames(shrub.native)
+        
         native.shrubs <-
-            shrub.native[which(shrub.native$shrub.origin == "native"), "shrub.species"]
-        # native.shrubs.ns <- native.shrubs[-which(native.shrubs == "gaultheria.shallon")]
+            shrub.native[shrub.native$shrub.origin == "native", "shrub.scientific.update"]
 
         management.landscaping$shrub.nat.dens <-
             rowSums(dens.matrify.shrub.site[, native.shrubs])
@@ -134,42 +157,8 @@ options(tibble.width = Inf)
     ## telling if they are the same as other unknowns as there is with shrubs and
     ## trees.
 
-
-        bird.data <- read.csv("../../DataRepository/BirdData/BirdData_all_07192016.csv",
-                          stringsAsFactors = FALSE, header = FALSE)
-
-
-    ## Fix column names (macro doesn't output column names; note colnames should be V1 etc due to header = FALSE)
-        colnames(bird.data)
-        colnames(bird.data) <-
-            c(
-                "site.name",
-                "visit.number",
-                "date",
-                "cloud",
-                "field.wind",
-                "field.temp",
-                "NWS.temp",
-                "noise.level",
-                "start",
-                "end",
-                "sweep.number",
-                "on.site",
-                "text.spp",
-                "BBL",
-                "A.vegetation.gleaning",
-                "A.ground.foraging",
-                "A.eating.berries",
-                "A.eating.seeds",
-                "A.sitting",
-                "A.calling",
-                "A.flitting",
-                "detected.seen",
-                "detected.call",
-                "detected.other.noise",
-                "detected.recorded.audio",
-                "notes"
-            )
+        bird.data <- read.csv("BirdData_all_07192016.csv",
+                          stringsAsFactors = FALSE)[-1]
 
         bird.data$date <-
             as.Date(bird.data$date, format = "%m/%d/%Y")
@@ -177,8 +166,8 @@ options(tibble.width = Inf)
         bird.data$field.wind <- as.factor(bird.data$field.wind)
         bird.data$start <- chron(times. = bird.data$start)
         bird.data$end <- chron(times. = bird.data$end)
-        # Note that there are some observations that did not occur during sweeps
-        # and therefore do not have time data; these will show as na (170)
+            # Note that there are some observations that did not occur during sweeps
+            # and therefore do not have time data; these will show as na (170)
 
 
 

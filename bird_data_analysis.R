@@ -2,7 +2,7 @@
 
 ## Data manipulation --> analysis (this doc) --> Rmarkdown/bookdown
 
-## Written 10/06/2017. This analysis code is based on prior documents including
+## First written 10/06/2017. This analysis code is based on prior documents including
 ## 'bird_data_analysisX.R' and 'Office_Development_Bird_CommunitiesX.Rmd'.
 
 
@@ -24,24 +24,16 @@ date <- format(Sys.Date(), "%m%d%Y")
     library(stringr)
     library(dplyr)
     library(car)
-    library(lmPerm)
     library(AICcmodavg)
-
-
-## Check if these are necessary
-#library(dendextend)
-#library(Formula)
-#library(corrgram)
 
 
 ## Source data + helper R script
 
-    source("../Birds/bird_data_processing.R")
-    source('../R_Scripts/AICc_PERMANOVA.R')
-    source('../R_Scripts/repeat_multipatt.R')
-    source("../R_Scripts/group_PERMANOVA.R")
-    source("../R_Scripts/group_lmPerm.R")
-    source("../R_Scripts/AICc_table_generation.R")
+    source("bird_data_processing.R")
+    source('../../../../RCode/R_Scripts/AICc_PERMANOVA.R')
+    source('../../../../RCode/R_Scripts/repeat_multipatt.R')
+    source("../../../../RCode/R_Scripts/group_PERMANOVA.R")
+    source("../../../../RCode/R_Scripts/AICc_table_generation.R")
 
 sample.covariates <- sample.covariates[ order(sample.covariates$SiteName), ]
 matrify.incidence.clean <- matrify.incidence[ , !(colnames(matrify.incidence) == "no.birds")]

@@ -1,0 +1,53 @@
+"","tree.species","tree.latin","tree.common","tree.scientific","tree.scientific.update","tree.origin","tree.origin.update","origin.note","total.abundance"
+"1","alaska.cedar","chamaecyparis.nootkatensis","Alaska cedar","Cupressus nootkatensis","Callitropsis nootkatensis  ","native","native","more mountains than lowlands tho",57
+"2","amur.maple","acer.ginnala","Amur maple","Acer ginnala","Acer ginnala","non.native","non.native","asia, can be understory invasive",2
+"3","beech","fagus.sp","Beech","Fagus sylvatica gp.","Fagus sylvatica gp.","non.native","non.native","native to europe, asia, and eastern north america; european beech is most commonly cultivated.",2
+"4","big.leaf.maple","acer.macrophyllum","Bigleaf maple","Acer macrophyllum","Acer macrophyllum","native","native","",218
+"5","black.cottonwood","populus.trichocarpa","Black cottonwood","Populus trichocarpa","Populus trichocarpa","native","native","",13
+"6","black.locust","robinia.pseudoacacia","Black locust","Robinia pseudoacacia","Robinia pseudoacacia","non.native","non.native","southeastern US",3
+"7","black.pine","pinus.nigra","Black pine","Pinus nigra","Pinus nigra","non.native","non.native","",75
+"8","cedar.1","unknown.cedar.1","Cedar 1","Unknown Cedar 1","Unknown Cedar 1","ambiguous","ambiguous","",1
+"9","cedar.2","unknown.cedar.2","Cedar 2","Unknown Cedar 2","Unknown Cedar 2","ambiguous","ambiguous","",1
+"10","deodar.cedar","cedrus.deodara","Deodar cedar","Cedrus deodara","Cedrus deodara","non.native","non.native","asia; india/pakistan/afghanistan etc.",13
+"11","douglas.fir","pseudotsuga.menziesii","Douglas fir","Pseudotsuga menziesii","Pseudotsuga menziesii","native","native","",746
+"12","elm","ulmus.sp","Elm sp.","Ulmus sp.","Ulmus sp.","non.native","non.native","eastern us; asia, europe",4
+"13","european.mountain.ash","sorbus.aucuparia","European mountain ash","Sorbus aucuparia","Sorbus aucuparia","non.native","non.native","asia, africa, europe",1
+"14","green.ash","fraxinus.pennsylvanica","Green ash","Fraxinus pennsylvanica","Fraxinus pennsylvanica","non.native","non.native","eastern us",17
+"15","honey.locust","gleditsia.triacanthos","Honey locust","Gleditsia triacanthos","Gleditsia triacanthos","non.native","non.native","eastern us",9
+"16","hornbeam","carpinus.sp","Hornbeam","Carpinus sp.","Carpinus sp.","non.native","non.native","eastern us, asia, europe",3
+"17","katsuratree","cercidiphyllum.japonicum","Katsura","Cercidiphyllum japonicum","Cercidiphyllum japonicum","non.native","non.native","asia",5
+"18","linden","tilia.sp","Linden sp.","Tilia sp.","Tilia sp.","non.native","non.native","europe, asia, eastern US",1
+"19","lombardy.poplar","populus.nigra.italica","Lombardy poplar","Populus nigra","Populus nigra","non.native","non.native","europe, asia, africa",9
+"20","malus.sp","malus.sp","Apple sp.","Malus sp.","Malus sp.","non.native","non.native","some native (Malus fusca); most landscaping varieties native to China or central asia",6
+"21","norway.maple","acer.platanoides","Norway maple","Acer platanoides","Acer platanoides","non.native","non.native","europe and asia",100
+"22","pacific.madrone","arbutus.menziesii","Pacific madrone","Arbutus menziesii","Arbutus menziesii","native","native","",19
+"23","pacific.yew","taxus.brevifolia","Pacific yew","Taxus brevifolia","Taxus brevifolia","native","native","",1
+"24","paper.birch","betula.papyrifera","Paper birch","Betula papyrifera","Betula papyrifera","native","native","we are at the extreme southern end of the range",7
+"25","pin.oak","quercus.palustris.gp","Pin oak","Quercus palustris","Quercus palustris","non.native","non.native","eastern US",8
+"26","prunus.sp","prunus.sp","Flowering plum or cherry","Prunus sp.","Prunus subg. Cerasus","non.native","non.native","many cultivated species from asia; central asia; see https://www.jstor.org/stable/pdf/3093861.pdf?refreqid=excelsior%3A1bd385402d08f0beeda791f896aca1a0",39
+"27","prunus.tree","prunus.tree","Choke cherries","Prunus subg. Padus","Prunus subg. Padus","ambiguous","non-native","Prunus virginiana native to US but USFS maps suggest not native to King county; eastern and western subspecies with potential range in Puget Sound region; see https://link.springer.com/article/10.1007%2Fs10265-012-0535-1 for naming justification",2
+"29","quaking.aspen","populus.tremuloides","Quaking aspen","Populus tremuloides","Populus tremuloides","ambiguous","non-native","native on eastern side of the cascades; not native to King County",17
+"30","red.alder","alnus.rubra","Red alder","Alnus rubra","Alnus rubra","native","native","",29
+"31","red.birch","betula.occidentalis","Red birch","Betula occidentalis","Betula occidentalis","ambiguous","non-native","range map shows populations east of cascades--not native to king county",3
+"32","red.maple","acer.rubrum","Red maple","Acer rubrum","Acer rubrum","non.native","non.native","eastern us",132
+"33","red.oak","quercus.rubra","Red oak","Quercus rubra","Quercus rubra","non.native","non.native","eastern us",11
+"34","redbud","cercis.canadensis","Redbud","Cercis canadensis","Cercis canadensis","non.native","non.native","eastern us, europe and asia; some in southwest us",8
+"35","scots.pine","pinus.sylvestris","Scots pine","Pinus sylvestris","Pinus sylvestris","non.native","non.native","europe and siberia",17
+"36","shore.pine","pinus.contorta","Shore pine","Pinus contorta","Pinus contorta","native","native","",8
+"37","silver.birch","betula.pendula","Silver birch","Betula pendula","Betula pendula","non.native","non.native","europe and asia",3
+"38","southern.magnolia","magnolia.grandiflora","Southern magnolia","Magnolia grandiflora","Magnolia grandiflora","non.native","non.native","southeastern US",11
+"39","sugar.maple","acer.saccharum","Sugar maple","Acer saccharum","Acer saccharum","non.native","non.native","eastern US",43
+"40","sweetgum","liquidambar.styraciflua","Sweetgum","Liquidambar styraciflua","Liquidambar styraciflua","non.native","non.native","asia, europe, and eastern us",24
+"41","sycamore","platanus.occidentalis","American sycamore","Platanus occidentalis","Platanus occidentalis","non.native","non.native","asia, eastern us, some in southwest us",3
+"42","tulip.tree","liriodendron.tulipifera","Tulip tree","Liriodendron tulipifera","Liriodendron tulipifera","non.native","non.native","eastern us",7
+"43","unknown.broadleaf.1","unknown.broadleaf.1","Unknown broadleaf 1","Unknown Broadleaf 1","Unknown Broadleaf 1","ambiguous","ambiguous","",2
+"44","unknown.broadleaf.2","unknown.broadleaf.2","Unknown broadleaf 2","Unknown Broadleaf 2","Unknown Broadleaf 2","ambiguous","ambiguous","",1
+"45","unknown.broadleaf.3","unknown.broadleaf.3","Unknown broadleaf 3","Unknown Broadleaf 3","Unknown Broadleaf 3","ambiguous","ambiguous","",1
+"46","unknown.broadleaf.4","unknown.broadleaf.4","Unknown broadleaf 4","Unknown Broadleaf 4","Unknown Broadleaf 4","ambiguous","ambiguous","",1
+"47","unknown.broadleaf.5","unknown.broadleaf.5","Unknown broadleaf 5","Unknown Broadleaf 5","Unknown Broadleaf 5","ambiguous","ambiguous","",2
+"48","unknown.broadleaf.6","unknown.broadleaf.6","Unknown broadleaf 6","Unknown Broadleaf 6","Unknown Broadleaf 6","ambiguous","ambiguous","",1
+"49","weeping.serbian.spruce","picea.omorika","Weeping Serbian spruce","Picea omorika","Picea omorika","non.native","non.native","europe",6
+"50","western.hemlock","tsuga.heterophylla","Western hemlock","Tsuga heterophylla","Tsuga heterophylla","native","native","",5
+"51","western.red.cedar","thuja.plicata","Western red cedar","Thuja plicata","Thuja plicata","native","native","",245
+"52","white.ash","fraxinus.americana","White ash","Fraxinus americana","Fraxinus americana","non.native","non.native","eastern us",35
+"53","white.pine","pinus.strobus","White pine","Pinus strobus","Pinus subs. Strobus","ambiguous","ambiguous","could be eastern white pine (Pinus strobus; could potentially be western white pine Pinus monticola)",1

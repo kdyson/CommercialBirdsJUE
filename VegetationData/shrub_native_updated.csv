@@ -1,0 +1,85 @@
+"","shrub.species","shrub.common","shrub.scientific","shrub.scientific.update","shrub.common.pretty","shrub.origin","shrub.origin.update","origin.note","total.abundance"
+"1","abelia.grandiflora","abelia","Abelia grandiflora","Abelia grandiflora","Glossy abelia","non-native","non-native","hybrid; bred in Italy parent species from Asia",29
+"2","acer.circinatum","vine.maple","Acer circinatum","Acer circinatum","Vine maple","native","native","",265
+"3","acer.palmatum","japanese.maple","Acer palmatum","Acer palmatum","Japanese maple","non-native","non-native","Asia",17
+"4","amelanchier.alnifolia","saskatoon","Amelanchier alnifolia","Amelanchier alnifolia","Saskatoon","native","native","",4
+"5","arbutus.unedo","strawberry.tree","Arbutus unedo","Arbutus unedo","Strawberry tree","non-native","non-native","europe",125
+"6","arctostaphylos.sp","manzanita","Arctostaphylos sp.","Arctostaphylos sp.","Manzanita","native","native","genus native to western us",15
+"7","aucuba.japonica","spotted.laurel","Aucuba japonica","Aucuba japonica","Spotted laurel","non-native","non-native","Asia",7
+"42","mahonia.sp","oregon.grape.gp","Mahonia sp.","Berberis Mahonia gp.","Mahonia gp.","ambiguous","ambiguous","native species along with natives of asia, central america. Mahonia bealei naturalized but from China.",1007
+"8","berberis.thunbergii","barberry","Berberis thunbergii","Berberis thunbergii","Barberry","non-native","non-native","Asia",144
+"9","buxus.sp","boxwood","Buxus sp.","Buxus sp.","Boxwood","non-native","non-native","Europe, South and central america, africa, asia",65
+"10","calluna.vulgaris","common.heather","Calluna vulgaris","Calluna vulgaris","Common heather","non-native","non-native","Europe",28
+"11","cistaceae.sp","rock.rose","Cistaceae sp.","Cistaceae sp.","Rock rose","ambiguous","non-native","symbiotic with fungi of genus Tuber; species native to Europe and North America--update, Europe ONLY",56
+"13","cornus.florida.gp","flowering.dogwood.gp","Cornus florida gp.","Cornus florida gp.","Flowering dogwood gp.","non-native","non-native","southeastern us",12
+"12","cornus.alba","tatarian.dogwood","Cornus alba","Cornus sericea gp.","Tatarian dogwood","non-native","non-native","Asia",419
+"14","corylus.sp","hazelnut","Corylus sp.","Corylus sp.","Hazelnut","native","native","likely corylus cornuta",109
+"15","cotoneaster.sp","cotoneaster","Cotoneaster sp.","Cotoneaster sp.","Cotoneaster","non-native","non-native","europe, asia, north africa",85
+"16","crataegus.sp","hawthorn","Crataegus sp.","Crataegus sp.","Hawthorn","ambiguous","ambiguous","C. douglasii native; many others non-native",11
+"17","cytisus.scoparius","scotch.broom","Cytisus scoparius","Cytisus scoparius","Scotch broom","non-native","non-native","Europe",9
+"18","daphne.sp","daphne","Daphne sp.","Daphne sp.","Daphne","non-native","non-native","Asia, Europe, africa",4
+"51","potentilla.fruticosa","white.potentilla","Potentilla fruticosa","Dasiphora fruticosa","White potentilla","native","native","",19
+"19","elaeagnus.commutata","silverberry","Elaeagnus commutata","Elaeagnus commutata","Silverberry","native","native","",31
+"20","enkianthus.campanulatus","enkianthus","Enkianthus campanulatus","Enkianthus campanulatus","Enkianthus","non-native","non-native","Japan",2
+"21","erica.sp","winter.heath","Erica sp.","Erica sp.","Winter heath","non-native","non-native","Africa, europe",16
+"22","escallonia.sp","escallonia","Escallonia sp.","Escallonia sp.","Escallonia","non-native","non-native","south america",40
+"23","euonymus.alatus","winged.euonymus","Euonymus alatus","Euonymus alatus","Winged euonymus","non-native","non-native","asia",127
+"24","euonymus.japonicus","euonymus.japonicus.gp","Euonymus japonicus","Euonymus japonicus","Japanese spindle","non-native","non-native","asia",76
+"25","euphorbia.sp","euphorbia","Euphorbia sp.","Euphorbia sp.","Euphorbia","non-native","non-native","Africa",56
+"26","forsythia.sp","forsythia","Forsythia sp.","Forsythia sp.","Forsythia","non-native","non-native","Asia and europe",76
+"27","gardenia.sp","gardenia","Gardenia sp.","Gardenia sp.","Gardenia","non-native","non-native","africa, asia",3
+"28","gaultheria.shallon","salal","Gaultheria shallon","Gaultheria shallon","Salal","native","native","",1267
+"29","hebe.sp","hebe","Hebe sp.","Hebe sp.","Hebe","non-native","non-native","new zealand, south america",31
+"30","hibiscus.syriacus","rose.of.sharon","Hibiscus syriacus","Hibiscus syriacus","Rose of Sharon (hibiscus)","non-native","non-native","asia",2
+"31","holodiscus.discolor","oceanspray","Holodiscus discolor","Holodiscus discolor","Oceanspray","native","native","",7
+"32","hydrangea.sp","hydrangea","Hydrangea sp.","Hydrangea sp.","Hydrangea","non-native","non-native","asia, eastern us and south america",15
+"33","hypericum.calycinum","hypericum","Hypericum calycinum","Hypericum calycinum","St. John's wort","non-native","non-native","",71
+"35","ilex.sp","holly","Ilex aquifolium gp.","Ilex aquifolium gp.","English holly group","ambiguous","non-native","both native and non native species grown",30
+"34","ilex.crenata","japanese.holly","Ilex crenata","Ilex crenata","Japanese holly","non-native","non-native","asia",138
+"36","kalmia.latifolia","mountain.laurel","Kalmia latifolia","Kalmia latifolia","Mountain laurel","non-native","non-native","eastern US",2
+"37","lavandula.sp","lavender","Lavandula sp.","Lavandula sp.","Lavender","non-native","non-native","europe",46
+"38","leucothoe.fontanesiana","leucothoe","Leucothoe fontanesiana","Leucothoe fontanesiana","Drooping Leucothoe","non-native","non-native","eastern US",8
+"39","leycesteria.formosa","leycesteria","Leycesteria formosa","Leycesteria formosa","Himalayan honeysuckle","non-native","non-native","asia",17
+"40","lonicera.pileata","shrub.honeysuckle","Lonicera pileata","Lonicera pileata","Privet honeysuckle","non-native","non-native","asia",136
+"41","lonicera.sempervirens.gp","vine.honeysuckle","Lonicera sempervirens gp.","Lonicera sempervirens gp.","Trumpet honeysuckle","non-native","non-native","eastern US",9
+"43","nandina.domestica","heavenly.bamboo","Nandina domestica","Nandina domestica","Heavenly bamboo","non-native","non-native","asia",168
+"44","oemleria.cerasiformis","indian.plum","Oemleria cerasiformis","Oemleria cerasiformis","Indian plum","native","native","",146
+"45","ornamental.conifer","ornamental.conifer","Ornamental conifer","Ornamental conifer","Ornamental conifer","ambiguous","non-native","all bred, some derived from natives",177
+"46","osmanthus.burkwoodii","burkwood.osmanthus","Osmanthus burkwoodii","Osmanthus x burkwoodii gp.","Burkwood osmanthus","non-native","non-native","hybrid; osmanthus native to asia and southeastern us and central america; Osmanthus delavayi x Osmanthus decorus",76
+"47","philadelphus.lewisii","mock.orange","Philadelphus lewisii","Philadelphus lewisii","Mock orange","native","native","",2
+"48","photinia.fraseri","frasers.photinia","Photinia fraseri","Photinia x fraseri gp.","Fraser's Photinia","non-native","non-native","hybrid; photinia native to asia",66
+"49","physocarpus.opulifolious","ninebark","Physocarpus opulifolious","Physocarpus opulifolius","Ninebark","non-native","non-native","eastern US",9
+"50","pieris.japonica","japanese.pieris","Pieris japonica","Pieris japonica","Japanese pieris","non-native","non-native","asia",34
+"52","prunus.laurocerasus","cherry.laurel","Prunus laurocerasus","Prunus laurocerasus","Cherry laurel","non-native","non-native","asia, europe, middle east",682
+"54","rahpiolepis.sp","indian.hawthorne","Rahpiolepsis indica","Rhaphiolepis indica","Indian hawthorne","non-native","non-native","asia",4
+"55","rhododendron.sp","rhododendron","Rhododendron sp.","Rhododendron sp.","Rhododendron","ambiguous","non-native","native species along with species from asia; mostly asian species sold",612
+"56","rhus.sp","sumac","Rhus sp.","Rhus sp.","Sumac","ambiguous","non-native","native and non-natives cultivated (and crossed)--mostly non-natives sold.",25
+"57","ribes.sanguineum","red.flowering.currant","Ribes sanguineum","Ribes sanguineum","Red flowering currant","native","native","",143
+"58","rosa.sp","rose","Rosa sp.","Rosa sp.","Domestic rose","ambiguous","non-native","cultivated species mostly from southwestern and eastern us, asia, europe, africa; however three native species",46
+"59","rosmarinus.officinalis","rosemary","Rosmarinus officinalis","Rosmarinus officinalis","Rosemary","non-native","non-native","europe",1
+"60","rubus.armeniacus","himalayan.blackberry","Rubus armeniacus","Rubus bifrons","Himalayan blackberry","non-native","non-native","armenia and iran",119
+"61","rubus.laciniatus","evergreen.blackberry","Rubus laciniatus","Rubus laciniatus","Evergreen blackberry","non-native","non-native","europe",25
+"62","rubus.spectabilis","salmonberry","Rubus spectabilis","Rubus spectabilis","Salmonberry","native","native","",48
+"63","sambucus.sp","elderberry","Sambucus sp.","Sambucus sp.","Elderberry","ambiguous","ambiguous","both native and non native species grown",3
+"64","sarcococca.confusa","sweet.box","Sarcococca confusa","Sarcococca confusa","Sweet box","non-native","non-native","asia; this genus not recognized in TS but see https://link.springer.com/article/10.1007/s10681-017-1934-0 ",69
+"66","spiraea.japonica.gp","spiraea.japonica.gp","Spiraea japonica gp.","Spiraea japonica gp.","Spiraea japonica gp.","non-native","non-native","mostly non-native cultivar S. japonica and various crosses; may be one or two natives mixed in but unlikely",57
+"65","spiraea.nipponica","japanese.spiraea","Spiraea nipponica","Spiraea nipponica","Japanese spirea","non-native","non-native","asia",59
+"67","styrax.japonicus","japanese.snowball","Styrax japonicus","Styrax japonicus","Japanese snowball","non-native","non-native","south america and asia",11
+"68","symphoricarpos.sp","snowberry","Symphoricarpos sp.","Symphoricarpos sp.","Snowberry","native","native","likely, some species from southwestern us",148
+"69","syringa.vulgaris","lilac","Syringa vulgaris","Syringa vulgaris","Lilac","non-native","non-native","europe (balkans)",2
+"70","thuja.occidentalis","arborvitae","Thuja occidentalis","Thuja occidentalis","Arborvitae","non-native","non-native","eastern US",31
+"71","unknown.gpB","unknown.gpB","Unknown B gp.","Unknown B gp.","Unknown B gp.","ambiguous","ambiguous","",1
+"72","unknown.gpC","unknown.gpC","Unknown C gp.","Unknown C gp.","Unknown C gp.","ambiguous","ambiguous","",2
+"73","unknown.gpF","unknown.gpF","Unknown F gp.","Unknown F gp.","Unknown F gp.","ambiguous","ambiguous","",1
+"74","unknown.gpG","unknown.gpG","Unknown G gp.","Unknown G gp.","Unknown G gp.","ambiguous","ambiguous","",1
+"75","unknown.gpJ","unknown.gpJ","Unknown J gp.","Unknown J gp.","Unknown J gp.","ambiguous","ambiguous","",1
+"76","unknown.gpK","unknown.gpK","Unknown K gp.","Unknown K gp.","Unknown K gp.","ambiguous","ambiguous","",1
+"77","unknown.gpL","unknown.gpL","Unknown L gp.","Unknown L gp.","Unknown L gp.","ambiguous","ambiguous","",1
+"78","unknown.gpN","unknown.gpN","Unknown N gp.","Unknown N gp.","Unknown N gp.","ambiguous","ambiguous","",5
+"79","unknown.gpS","unknown.gpS","Unknown S gp.","Unknown S gp.","Unknown S gp.","ambiguous","ambiguous","",1
+"81","vaccinium.ovatum","evergreen.huckleberry","Vaccinium ovatum","Vaccinium ovatum","Evergreen huckleberry","native","native","",205
+"82","vaccinium.parvifolium","huckleberry","Vaccinium parvifolium","Vaccinium parvifolium","Huckleberry","native","native","",26
+"80","vaccinium.cyanococcus.gp","blueberry","Vaccinium cyanococcus gp.","Vaccinium sect. Cyanococcus","Blueberry","native","native","",5
+"83","viburnum.davidii","david.viburnum","Viburnum davidii","Viburnum davidii","David viburnum","non-native","non-native","china; species not recgnized by IT IS but see https://gd.eppo.int/taxon/VIBDV and https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=237932",278
+"84","viburnum.plicatum","viburnum.hydrangea","Viburnum plicatum","Viburnum plicatum","Snowball bush","non-native","non-native","china",11
+"85","viburnum.tinus","laurustinus","Viburnum tinus","Viburnum tinus","Laurustinus","non-native","non-native","europe and north africa",101
