@@ -18,11 +18,28 @@ source("VegetationData/vegetation_data_processing_Combined.R")
 remove(
     count.tree.type,
     dens.matrify.tree.sp.size,
+    dens.matrify.gc,
     DF.site.measures,
     matrify.large.trees,
     matrify.shrub.zones,
-    matrify.tree.sp.size
+    matrify.tree.sp.size,
+    remove.raw
 )
+
+    ## Make sure variables in same order (aka paranoia)
+        management.landscaping <- management.landscaping[order(management.landscaping$Site),]
+        sample.covariates <- sample.covariates[order(sample.covariates$SiteName),]
+        
+        dens.matrify.shrub.site <- dens.matrify.shrub.site[order(rownames(dens.matrify.shrub.site)),]
+        dens.matrify.tree.sp.only <- dens.matrify.tree.sp.only[order(rownames(dens.matrify.tree.sp.only)),]
+        matrify.gc <- matrify.gc[order(rownames(matrify.gc)),]
+        matrify.shrub.site <- matrify.shrub.site[order(rownames(matrify.shrub.site)),]
+        matrify.tree.sp.only <- matrify.tree.sp.only[order(rownames(matrify.tree.sp.only)),]
+        
+    # rename
+        dens.shrub.site <- dens.matrify.shrub.site
+        dens.tree.sp.only <- dens.matrify.tree.sp.only
+        remove(dens.matrify.shrub.site, dens.matrify.tree.sp.only)
 
     ## Set options
         options(scipen = 999)
@@ -107,11 +124,15 @@ remove(
         Weather_Hour$hours <- hours(Weather_Hour$Hour.PST)
         str(Weather_Hour) # should have 4362 observations; note raw downloaded data may have double data entries.
 
+    # Remove intermediate steps.
+        remove(Dec_15, Dec_14, Feb_16, Feb_15, Jan_16, Jan_15
+        )
 
-## 
-        dens.matrify.gc <- read.csv("VegetationData/matrify_gc.csv",
-                                    stringsAsFactors = F) %>%
-            mutate(dense.veg.pct = dense.veg/total.area,
+## Create ground cover/vegetation covariate data tables
+    # Ground cover
+        dens.matrify.gc <- matrify.gc %>%
+            mutate(site.name = rownames(matrify.gc),
+                   dense.veg.pct = dense.veg/total.area,
                    dirt.litter.pct = dirt.litter/total.area,
                    grass.pct = grass/total.area,
                    gravel.pct = gravel/total.area,
@@ -121,34 +142,65 @@ remove(
                    impervious.pct = impervious.sqft/total.area,
                    pervious.pct = pervious.sqft/total.area)
         
-        colnames(dens.matrify.gc)[1] <- "site.abbr"
-        colnames(dens.matrify.gc)[11] <- "total.area.sqft"
+        colnames(dens.matrify.gc)[colnames(dens.matrify.gc) == "total.area"] <- "total.area.sqft"
+        remove(matrify.gc)
+        
+    # Vegetation
+        management.landscaping[management.landscaping == "unknown"] <- "no.unkn"
+        management.landscaping[management.landscaping == "no"] <- "no.unkn"
+
+        
+        dens.tree.sp.only.native <-
+            dens.tree.sp.only[, colnames(dens.tree.sp.only) %in%
+                                     tree.native$tree.species[tree.native$tree.origin == "native"]]
+        
+        matrify.tree.sp.only.native <-
+            matrify.tree.sp.only[, colnames(matrify.tree.sp.only) %in%
+                                     tree.native$tree.species[tree.native$tree.origin == "native"]]
+
+        matrify.shrub.site.native <-
+            matrify.shrub.site[, colnames(matrify.shrub.site) %in%
+                                   shrub.native$shrub.scientific.update[shrub.native$shrub.origin == "native"]]
+
+        dens.shrub.site.native <-
+            dens.shrub.site[, colnames(dens.shrub.site) %in%
+                                shrub.native$shrub.scientific.update[shrub.native$shrub.origin == "native"]]
+
         
         
+        tree.metrics <- tibble(
+            site.abbr = rownames(matrify.tree.sp.only),
+            tree.abundance = rowSums(matrify.tree.sp.only),
+            tree.nat.abundance = rowSums(matrify.tree.sp.only.native),
+            tree.dens = rowSums(dens.tree.sp.only),
+            tree.nat.dens = rowSums(dens.tree.sp.only.native),
+            tree.nat.esr = exp(diversity(matrify.tree.sp.only.native)),
+            conifer.nat.abundance = matrify.tree.sp.only$douglas.fir + 
+                matrify.tree.sp.only$western.hemlock +
+                matrify.tree.sp.only$western.red.cedar,
+            conifer.nat.dens = dens.tree.sp.only$douglas.fir + 
+                dens.tree.sp.only$western.hemlock + 
+                dens.tree.sp.only$western.red.cedar
+        )        
         
-    # Create the native conifer density variable
-
-
-        management.landscaping$tree.conifer.nat.dens <-
-            dens.matrify.tree.sp.only$western.red.cedar +
-            dens.matrify.tree.sp.only$western.hemlock +
-            dens.matrify.tree.sp.only$douglas.fir
-        management.landscaping$impervious.sqft <-
-            dens.matrify.gc$impervious.sqft
-
-
-        # Create the native shrub density variable
-
-        colnames(shrub.native)
         
-        native.shrubs <-
-            shrub.native[shrub.native$shrub.origin == "native", "shrub.scientific.update"]
+        shrub.metrics <- tibble(
+            site.abbr = rownames(matrify.shrub.site),
+            shrub.abundance = rowSums(matrify.shrub.site),
+            shrub.nat.abundance = rowSums(matrify.shrub.site.native),
+            shrub.dens = rowSums(dens.shrub.site),
+            shrub.nat.dens = rowSums(dens.shrub.site.native),
+            shrub.nat.esr = exp(diversity(matrify.shrub.site.native))
+        )
+        
 
-        management.landscaping$shrub.nat.dens <-
-            rowSums(dens.matrify.shrub.site[, native.shrubs])
-        management.landscaping$shrub.esr <-
-            exp(diversity(dens.matrify.shrub.site[, native.shrubs]))
+    sample.covariates <- left_join(sample.covariates, dens.matrify.gc, c("SiteName" = "site.name")) %>%
+                            left_join( . , management.landscaping, c("SiteName" = "Site")) %>%
+                            left_join( . , tree.metrics, c("SiteName" = "site.abbr")) %>%
+                            left_join( . , shrub.metrics, c("SiteName" = "site.abbr"))
 
+    
+        
 
 ## -- BIRD OBSERVATIONS ------------------------------------------------------------------
 
@@ -156,10 +208,11 @@ remove(
     ## unknowns as portion of data: likely need to remove them because no way of
     ## telling if they are the same as other unknowns as there is with shrubs and
     ## trees.
-
+        
+        
         bird.data <- read.csv("BirdData_all_07192016.csv",
-                          stringsAsFactors = FALSE)[-1]
-
+                              stringsAsFactors = FALSE, na.strings = c("NA", "na"))[-1]
+        
         bird.data$date <-
             as.Date(bird.data$date, format = "%m/%d/%Y")
         bird.data$cloud <- as.factor(bird.data$cloud)
@@ -168,7 +221,6 @@ remove(
         bird.data$end <- chron(times. = bird.data$end)
             # Note that there are some observations that did not occur during sweeps
             # and therefore do not have time data; these will show as na (170)
-
 
 
     ## If a bird was detected because it called, it should be recorded as
@@ -186,7 +238,11 @@ remove(
     # workaround in case time format is hh:mm instead of hh:mm:ss
     # bird.data$start <- chron(times. = paste(bird.data$start, ":00", sep=""))
 
-
+        bird.data.adjacent <- bird.data[bird.data$on.site == "adjacent", ]
+        bird.data <- bird.data[bird.data$on.site == "yes" & !is.na(bird.data$sweep.number),] 
+        # remove birds only seen on adjacent etc. properties for further analysis
+        
+        
 
 
     # Merge weather info with bird data.
@@ -195,7 +251,8 @@ remove(
             y = Weather_Hour,
             by.x = c('date', 'start.hour'),
             by.y = c('Date', 'hours'),
-            all.x = TRUE
+            all.x = TRUE,
+            sort = FALSE
         )
 
     ## There should be 3343 observations of birds on site; less 209 birds seen
@@ -203,35 +260,29 @@ remove(
     ## 3237 observations
 
 
-        bird.data.onsite <-
-            bird.data[which(bird.data$on.site == "yes" &
-                                bird.data$sweep.number != "na"), ]
-        summary(bird.data.onsite)
-        colnames(bird.data.onsite)
-
-
 
     ## Call out where birds were observed foraging--Note that they must have been SEEN.
 
 
-        bird.data.onsite$did.forage <-
-            as.numeric(apply(bird.data.onsite[, 16:19], MARGIN = 1, FUN = max))
+        bird.data$did.forage <-
+            as.numeric(apply(bird.data[, 16:19], MARGIN = 1, FUN = max))
 
-    ## Note, warning will pop up saying NAs introduced by coercion; this is
-    ## because the no.birds have X's instead of numbers
+        ## Note, warning will pop up saying NAs introduced by coercion; this is
+        ## because the no.birds have X's instead of numbers
 
-
+    ## Create unique visit-sweep combo for sweep.number (otherwise it's repeated)
+        
+        bird.data$visit.sweep <- paste(bird.data$visit.number, bird.data$sweep.number, sep = "-")
 
 
 ## Incidence matrix
 
-    ## Now, create the incidence matrix. This is for both years (or each year
-    ## by itself). Collapses all data to give proportion of visits that species
-    ## was observed per site.
+    ## This is for both years (or each year by itself). Collapses all data to
+    ## give proportion of visits that species was observed per site.
 
         ## Calculate incidence
         incidence <-
-            group_by(bird.data.onsite, site.name, text.spp) %>%
+            group_by(bird.data, site.name, text.spp) %>%
             summarise(
                 visits.present = paste(as.character(unique(visit.number)), collapse = ", "),
                 visits.2014 = sum(unique(visit.number) < 5),
@@ -240,18 +291,22 @@ remove(
                     8,
                 incidence.2014 = visits.2014 / 4,
                 incidence.2015 = visits.2015 / 4,
-                ## Note: these just tell us if the bird was ever observed on site doing these actions.
-                A.vegetation.gleaning = max(A.vegetation.gleaning),
-                A.ground.foraging = max(A.ground.foraging),
-                A.eating.berries = max(A.eating.berries),
-                A.eating.seeds = max(A.eating.seeds),
-                A.sitting = max(A.sitting),
-                A.calling = max(A.calling),
-                A.flitting = max(A.flitting),
-                detected.seen = max(detected.seen),
-                detected.call  = max(detected.call),
-                detected.other.noise = max(detected.other.noise),
-                detected.recorded.audio = max(detected.recorded.audio)
+                sweeps.present = paste(as.character(unique(visit.sweep)), collapse = ", "),
+                sweeps.present.count = length(as.character(unique(visit.sweep))),
+                ## Note: these just tell us how often the bird was ever observed
+                ## on site doing these actions. Number of sweeps isn't
+                ## consistent between sites (by design)
+                A.vegetation.gleaning = sum(A.vegetation.gleaning == "1"),
+                A.ground.foraging = sum(A.ground.foraging == "1"),
+                A.eating.berries = sum(A.eating.berries == "1"),
+                A.eating.seeds = sum(A.eating.seeds == "1"),
+                A.sitting = sum(A.sitting == "1"),
+                A.calling = sum(A.calling == "1"),
+                A.flitting = sum(A.flitting == "1"),
+                detected.seen = sum(detected.seen == "1"),
+                detected.call  = sum(detected.call == "1"),
+                detected.other.noise = sum(detected.other.noise == "1"),
+                detected.recorded.audio = sum(detected.recorded.audio == "1")
             )
 
         ## NOTE: as character must go outside unique, not inside!
@@ -269,22 +324,23 @@ remove(
 
         ## Create the bird level table
         bird.by.visit.PA <-
-            group_by(bird.data.onsite, site.name, visit.number, text.spp) %>%
+            group_by(bird.data, site.name, visit.number, text.spp) %>%
             summarise(
                 BBL = max(BBL),
+                sweeps.max = max(sweep.number),
                 sweeps.present = n(),
                 sweeps.foraging = sum(did.forage),
-                A.vegetation.gleaning = max(A.vegetation.gleaning),
-                A.ground.foraging = max(A.ground.foraging),
-                A.eating.berries = max(A.eating.berries),
-                A.eating.seeds = max(A.eating.seeds),
-                A.sitting = max(A.sitting),
-                A.calling = max(A.calling),
-                A.flitting = max(A.flitting),
-                detected.seen = max(detected.seen),
-                detected.call  = max(detected.call),
-                detected.other.noise = max(detected.other.noise),
-                detected.recorded.audio = max(detected.recorded.audio),
+                A.vegetation.gleaning = sum(A.vegetation.gleaning == "1"),
+                A.ground.foraging = sum(A.ground.foraging == "1"),
+                A.eating.berries = sum(A.eating.berries == "1"),
+                A.eating.seeds = sum(A.eating.seeds == "1"),
+                A.sitting = sum(A.sitting == "1"),
+                A.calling = sum(A.calling == "1"),
+                A.flitting = sum(A.flitting == "1"),
+                detected.seen = sum(detected.seen == "1"),
+                detected.call  = sum(detected.call == "1"),
+                detected.other.noise = sum(detected.other.noise == "1"),
+                detected.recorded.audio = sum(detected.recorded.audio == "1"),
                 notes = paste(unique(notes, na.rm = TRUE), collapse = ", ")
             )
         ## Note: here, vegetation gleaning etc. tell us if the bird was
@@ -293,47 +349,53 @@ remove(
 
 ## Need to add a few variables to describe aggregate foraging behavior, etc.
 
-
+        A.foraging.cols <- c("A.vegetation.gleaning", "A.ground.foraging",
+                             "A.eating.berries", "A.eating.seeds" )
+        
         ## When I know the bird was foraging (recorded)
-        bird.by.visit.PA$B.foraging <-
-            apply(X = bird.by.visit.PA[, 6:9], MARGIN = 1, FUN = max)
+            bird.by.visit.PA$B.foraging <-
+                apply(X = bird.by.visit.PA[, A.foraging.cols], MARGIN = 1, FUN = max)
+            bird.by.visit.PA$B.foraging <- ifelse(bird.by.visit.PA$B.foraging > 0,
+                                                  1,
+                                                  0)
+            
+            
         ## When I know the bird wasn't foraging (saw bird and did not record foraging activity)
-        bird.by.visit.PA$B.not.foraging <-
-            ifelse(bird.by.visit.PA$B.foraging == "0" &
-                       bird.by.visit.PA$detected.seen == "1",
-                   "1",
-                   "0")
+            bird.by.visit.PA$B.not.foraging <-
+                ifelse(bird.by.visit.PA$B.foraging == 0 &
+                           bird.by.visit.PA$detected.seen > 0,
+                       1,
+                       0)
+            
+            
         ## When I didn't see the bird, and therefore didn't know if it was foraging or not.
-        bird.by.visit.PA$B.unknown.foraging <-
-            ifelse(bird.by.visit.PA$B.foraging == "0" &
-                       bird.by.visit.PA$detected.seen == "0",
-                   "1",
-                   "0")
-        ## Bird engaging in another activity, such as singing.
-        bird.by.visit.PA$B.other.activity <-
-            apply(X = bird.by.visit.PA[, 10:12], MARGIN = 1, FUN = max)
-        ## PA column for basis of PA matrify
-        bird.by.visit.PA$PA <-
-            ifelse(bird.by.visit.PA$sweeps.present > 0, 1, 0)
+            bird.by.visit.PA$B.unknown.foraging <-
+                ifelse(bird.by.visit.PA$B.foraging == 0 &
+                           bird.by.visit.PA$detected.seen == 0,
+                       1,
+                       0)
+            
 
-        str(bird.by.visit.PA)
-        summary(bird.by.visit.PA)
+        ## PA column for basis of PA matrify
+            bird.by.visit.PA$PA <-
+                ifelse(bird.by.visit.PA$sweeps.present > 0,
+                       1,
+                       0)
+    
+            str(bird.by.visit.PA)
+            summary(bird.by.visit.PA)
 
 
 
     ## Now create another group based on bird.by.visit.PA grouped by site name and
     ## text.spp (like incidence is) in order to determine # times seen foraging.
 
-
-
-        species.foraging <-
+        bird.foraging.incidence <-
             group_by(bird.by.visit.PA, site.name, text.spp) %>%
             summarise(
                 proportion.foraging = sum(sweeps.foraging > 0) / 8,
-                proportion.ofseen.foraging = sum(sweeps.foraging > 0) /
-                    sum(detected.seen == 1),
-                string.sweeps.foraging = paste(sweeps.foraging, collapse = ", "),
-                string.visits.seen = paste(as.character(unique(visit.number)),
+                sweeps.foraging = paste(sweeps.foraging, collapse = ", "),
+                visits.seen = paste(as.character(unique(visit.number)),
                                            collapse = ", "),
                 PA.foraging = ifelse(proportion.foraging > 0, 1, 0)
             )
@@ -353,100 +415,76 @@ remove(
                 site.name = "site.name",
                 abundance = "incidence"
             )
+        
         matrify.incidence <-
-            matrify.incidence[, -which(
-                colSums(matrify.incidence) == 0 |
-                    colnames(matrify.incidence) %in%
-                    c("sharp.shinned.hawk", "coopers.hawk", "unknown")
-            )]
+            matrify.incidence[ , 
+                !(colnames(matrify.incidence) %in%
+                    c("sharp.shinned.hawk", "coopers.hawk", "unknown")) ]
 
         sp.seen_2.clean <-
-            colnames(matrify.incidence[, -which(colSums(matrify.incidence) < 0.250 |
-                                                    colnames(matrify.incidence) == "no.birds")])
-        matrify.incidence_2.clean <-
-            matrify.incidence[, which(colnames(matrify.incidence) %in% sp.seen_2.clean)]
+            colnames(matrify.incidence[, colSums(matrify.incidence) > 0.125 &
+                                                    colnames(matrify.incidence) != "no.birds"] )
+        matrify.incidence_2.clean <- matrify.incidence[, sp.seen_2.clean]
 
 
         matrify.foraging <-
             ez.matrify(
-                filename = species.foraging,
+                filename = bird.foraging.incidence,
                 species.name = "text.spp",
                 site.name = "site.name",
                 abundance = "proportion.foraging"
             )
+        
+        
         matrify.foraging <-
-            matrify.foraging[, -which(
-                colSums(matrify.foraging) == 0 |
-                    colnames(matrify.foraging) %in%
+            matrify.foraging[, 
+                colSums(matrify.foraging) > 0 &
+                    !(colnames(matrify.foraging) %in%
                     c("sharp.shinned.hawk", "coopers.hawk", "no.birds")
             )]
+        
+        matrify.foraging_2 <- matrify.foraging[, colnames(matrify.foraging) %in% sp.seen_2.clean]
 
 
         bird.guilds <-
-            read.csv("../../DataRepository/BirdData/birdguildinfo.csv",
+            read.csv("birdguildinfo.csv",
                      stringsAsFactors = FALSE)
-
-
-        ## species richness and sub-sets for the different guilds.
-
-        # appear to be this shape: plot(c(1:10), 1 - c(1:10)^2)
-
-
-        # Diet
-        matrify.omnivore_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$diet == "omnivore")])]
-        matrify.grainivore_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$diet == "grainivore")])]
-        matrify.insectivore_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$diet == "insectivore")])]
-        # Foraging Substrate
-        matrify.ground_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$foraging.substrate ==
-                                                                                     "ground")])]
-        matrify.treshrb_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$foraging.substrate ==
-                                                                                     "trees.shrubs")])]
-        matrify.generalist_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$foraging.substrate ==
-                                                                                     "generalist")])]
-
-        # Forest Preference
-        matrify.mixed_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$forest.preference ==
-                                                                                     "mixed")])]
-        matrify.conifer_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$forest.preference ==
-                                                                                     "conifer")])]
-        matrify.open_2.clean <-
-            matrify.incidence_2.clean[, which(colnames(matrify.incidence_2.clean) %in%
-                                                  bird.guilds$species.name[which(bird.guilds$forest.preference ==
-                                                                                     "open.none")])]
 
 
         guild.eff.sp.rich_2.clean <-
             tibble(
                 site.name = rownames(matrify.incidence_2.clean),
-                omnivore.esr = exp(diversity(matrify.omnivore_2.clean)),
-                grainivore.esr = exp(diversity(matrify.grainivore_2.clean)),
-                insectivore.esr = exp(diversity(matrify.insectivore_2.clean)),
+                omnivore.esr = exp(diversity( matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                 bird.guilds$species.name[bird.guilds$diet == "omnivore"]]
+                                                 )),
+                grainivore.esr = exp(diversity(matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                 bird.guilds$species.name[bird.guilds$diet == "grainivore"]]
+                                               )),
+                insectivore.esr = exp(diversity(matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                 bird.guilds$species.name[bird.guilds$diet == "insectivore"]]
+                                                )),
+                
+                ground.for.esr = exp(diversity( matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                bird.guilds$species.name[bird.guilds$foraging.substrate == "ground"]]
+                                                )),
+                treshrb.for.esr = exp(diversity(matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                bird.guilds$species.name[bird.guilds$foraging.substrate ==
+                                                                                   "trees.shrubs"]]
+                                                )),
+                generalist.for.esr = exp(diversity(matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                bird.guilds$species.name[bird.guilds$foraging.substrate == "generalist"]]
+                                                )),
 
-                ground.for.esr = exp(diversity(matrify.ground_2.clean)),
-                treshrb.for.esr = exp(diversity(matrify.treshrb_2.clean)),
-                generalist.for.esr = exp(diversity(matrify.generalist_2.clean)),
-
-                mixed.esr = exp(diversity(matrify.mixed_2.clean)),
-                conifer.esr = exp(diversity(matrify.conifer_2.clean)),
-                open.esr = exp(diversity(matrify.open_2.clean))
+                mixed.esr = exp(diversity(matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                bird.guilds$species.name[bird.guilds$forest.preference == "mixed"]]
+                                          )),
+                conifer.esr = exp(diversity(matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                bird.guilds$species.name[bird.guilds$forest.preference == "conifer"]]
+                                            )),
+                open.esr = exp(diversity( matrify.incidence_2.clean[, colnames(matrify.incidence_2.clean) %in%
+                                                bird.guilds$species.name[bird.guilds$forest.preference == "open.none"]]
+                                          ))
             )
-
 
 
 
@@ -463,13 +501,13 @@ remove(
 
 ## Site covariates also included.
 
-    vegetation.clusters <- read.csv("../Vegetation/vegetationClusters.csv")[-1]
+    vegetation.clusters <- read.csv("VegetationData/vegetationClusters.csv", stringsAsFactors = F)[-1]
 
 ## Create the visit level table with information about weather etc. per visit.
 
 
         bird.visit.info <-
-            group_by(bird.data.onsite, site.name, visit.number) %>%
+            group_by(bird.data, site.name, visit.number) %>%
             summarise(
                 site.name.visit = paste(unique(site.name), unique(visit.number), sep = "."),
                 visit.date = max(date),
@@ -485,8 +523,8 @@ remove(
                 fog = max(ifelse(cloud %in% c("fog", "light.fog"), 1 , 0), na.rm = TRUE),
                 drizzle = max(ifelse(cloud == "drizzle", 1, 0), na.rm = TRUE),
                 clouds.76.100 = max(ifelse(cloud == "76_100", 1, 0), na.rm = TRUE),
-                clouds.0.15 = max(ifelse(cloud == "0_15", 1, 0), na.rm = TRUE),
                 clouds.16.75 = max(ifelse(cloud %in% c("16_50", "51_71"), 1, 0), na.rm = TRUE),
+                clouds.0.15 = max(ifelse(cloud == "0_15", 1, 0), na.rm = TRUE),
                 Min.Air.Temp.F.min = min(Min.Air.Temp.F),
                 Avg.Air.Temp.F.mean = mean(Avg.Air.Temp.F),
                 Avg.Air.Temp.F.median = median(Avg.Air.Temp.F),
@@ -514,10 +552,7 @@ remove(
 
         plot(bird.visit.info$Solar.Rad.W_m2.mean, pch = bird.visit.info$site.name)
 
-## Create detection variables collapsed onto site to attach to
-## incidence, based on the first collapse by visit...
-
-
+## Create detection variables collapsed onto site to attach to incidence
 
         site.detection.info <- group_by(bird.visit.info, site.name) %>%
             summarise(
@@ -560,36 +595,23 @@ remove(
     bird.by.visit.PA.info <- merge.data.frame(x = bird.by.visit.PA, y = bird.visit.info,
                                               by.x = c("site.name", "visit.number"),
                                               by.y = c("site.name", "visit.number"),
-                                              all.x = TRUE)
+                                              all.x = TRUE,
+                                              sort = FALSE)
 
 
+# And merge with sample variables:
 
+        sample.covariates <- left_join( sample.covariates , vegetation.clusters[ , -6], c("SiteName" = "SiteName")) %>%
+                                left_join( . , site.detection.info, c("SiteName" = "site.name"))
+    
+    
 
 ## Now that we have a combined info matrix, clean up the global environment.
-    remove(bird.data, bird.data.onsite, Dec_15, Dec_14, Feb_16, Feb_15, Jan_16, Jan_15, Weather_Hour
-           )
 
+    remove(Weather_Hour, A.foraging.cols)
 
-
-## Add some shrub stats to the DF.
-
-
-
-
-
-
-
-
-## -- DATA STANDARDIZTION -------------------------------------------------------
-
-## Ocurs in bird_data_analysis:
-    # univariate.sprich$exp.3_dead.wood <- univariate.sprich$dead.wood^(1/3)
-    # univariate.sprich$exp3_age.2017 <- univariate.sprich$age.2017^3
-    # univariate.sprich$exp2_height.m.median <- univariate.sprich$height.m.median^2
-
-
-
-
+    remove(dens.matrify.gc, management.landscaping, tree.metrics, shrub.metrics, site.detection.info)
+    
 
 
 
@@ -603,10 +625,9 @@ remove(
     if (write.all == TRUE) {
 
 
-        write.csv(incidence, file = "../Birds/bird_incidence.csv")
-        write.csv(bird.by.visit.PA.info, file = "../Birds/birdbyvisitPAinfo.csv")
-        write.csv(incidence, file = "../Birds/incidence.csv")
-        write.csv(species.foraging, file = "../Birds/speciesforaging.csv")
-        write.csv(site.detection.info, file = "../Birds/sitedetectioninfo.csv")
+        write.csv(incidence, file = "bird_incidence.csv")
+        write.csv(bird.by.visit.PA.info, file = "birdbyvisitPAinfo.csv")
+        write.csv(bird.foraging.incidence, file = "bird_foraging_incidence.csv")
+        write.csv(site.detection.info, file = "sitedetectioninfo.csv")
 
 }

@@ -12,19 +12,19 @@
 date <- format(Sys.Date(), "%m%d%Y")
 
 ## Load required libraries
-    library(labdsv)
-    library(chron)
+    # library(labdsv)
+    # library(chron)
     library(vegan)
-    library(cluster)
-    library(indicspecies)
+    # library(cluster)
+    # library(indicspecies)
     library(tidyr)
     library(data.table)
-    library(MVN)
-    library(dendextend)
+    # library(MVN)
+    # library(dendextend)
     library(stringr)
     library(dplyr)
-    library(car)
-    library(AICcmodavg)
+    # library(car)
+    # library(AICcmodavg)
 
 
 ## Source data + helper R script
@@ -35,8 +35,9 @@ date <- format(Sys.Date(), "%m%d%Y")
     source("../../../../RCode/R_Scripts/group_PERMANOVA.R")
     source("../../../../RCode/R_Scripts/AICc_table_generation.R")
 
-sample.covariates <- sample.covariates[ order(sample.covariates$SiteName), ]
-matrify.incidence.clean <- matrify.incidence[ , !(colnames(matrify.incidence) == "no.birds")]
+matrify.incidence_0.clean <- matrify.incidence[ , !(colnames(matrify.incidence) == "no.birds")]
+
+vegetation.clusters <- vegetation.clusters[order(vegetation.clusters$SiteName), ]
 
 
 
@@ -44,63 +45,61 @@ matrify.incidence.clean <- matrify.incidence[ , !(colnames(matrify.incidence) ==
 
     # _2 suffix indicates that bird had to be seen at least twice
 
-
-descriptive.bird.bysite <-  tibble(
-    site = rownames(matrify.incidence),
-    site.area = sample.covariates$acres,
-    bird.sp.richness = apply(matrify.incidence[, -which(colnames(matrify.incidence) == "no.birds")],
-                             MARGIN = 1, specnumber),
-    bird.sp.richness_2 = apply(matrify.incidence[, -which(colSums(matrify.incidence) < .25 |
-                                                              colnames(matrify.incidence) == "no.birds")],
-                               MARGIN = 1, specnumber),
-    bird.Shannon = apply(matrify.incidence[, -which(colnames(matrify.incidence) == "no.birds")],
-                         MARGIN = 1, diversity),
-    bird.Shannon_2 = apply(matrify.incidence[, -which(colSums(matrify.incidence) < .25 |
-                                                          colnames(matrify.incidence) == "no.birds")],
-                           MARGIN = 1, diversity),
-    bird.effective.sp = exp(bird.Shannon),
-    bird.effective.sp_2 = exp(bird.Shannon_2),
-    visits.no.birds = matrify.incidence$no.birds * 8,
-
-    foraging.sp.richness = apply(matrify.foraging, MARGIN = 1, specnumber),
-    foraging.sp.richness_2 = apply(matrify.foraging[, -which(colSums(matrify.foraging) < .25)],
+    descriptive.bird.bysite <-  tibble(
+        site = rownames(matrify.incidence),
+        site.area = sample.covariates$acres,
+        bird.sp.richness = apply(matrify.incidence_0.clean,
+                                 MARGIN = 1, specnumber),
+        bird.sp.richness_2 = apply(matrify.incidence_2.clean,
                                    MARGIN = 1, specnumber),
-    foraging.Shannon = apply(matrify.foraging, MARGIN = 1, diversity),
-    foraging.Shannon_2 = apply(matrify.foraging[, -which(colSums(matrify.foraging) < .25)],
+        bird.Shannon = apply(matrify.incidence_0.clean,
+                             MARGIN = 1, diversity),
+        bird.Shannon_2 = apply(matrify.incidence_2.clean,
                                MARGIN = 1, diversity),
-    foraging.effective.sp = exp(foraging.Shannon),
-    foraging.effective.sp_2 = exp(foraging.Shannon_2),
+        bird.effective.sp = exp(bird.Shannon),
+        bird.effective.sp_2 = exp(bird.Shannon_2),
+        visits.no.birds = matrify.incidence$no.birds * 8,
+        
+        foraging.sp.richness = apply(matrify.foraging,
+                                     MARGIN = 1, specnumber),
+        foraging.sp.richness_2 = apply(matrify.foraging_2,
+                                       MARGIN = 1, specnumber),
+        foraging.Shannon = apply(matrify.foraging,
+                                 MARGIN = 1, diversity),
+        foraging.Shannon_2 = apply(matrify.foraging_2,
+                                   MARGIN = 1, diversity),
+        foraging.effective.sp = exp(foraging.Shannon),
+        foraging.effective.sp_2 = exp(foraging.Shannon_2),
+        
+        conifer.nat.abundance = sample.covariates$conifer.nat.abundance,
+        conifer.nat.dens = sample.covariates$conifer.nat.dens
+    )
 
-    tree.conifer.native = matrify.tree.sp.only$douglas.fir + matrify.tree.sp.only$western.hemlock +
-        matrify.tree.sp.only$western.red.cedar,
-    tree.conifer.nat.dens = tree.conifer.native / site.area
-)
+    temp <-
+        summarise_all(descriptive.bird.bysite[, 2:17], tibble::lst(min, max, mean, sd, median)) 
 
-temp <-
-    summarise_all(descriptive.bird.bysite[, 2:17], funs(min, max, mean, sd, median))
+        pretty.descriptive.birds.site <- tibble(
+            Metric = colnames(descriptive.bird.bysite)[2:17],
+            Minimum = unlist(temp[1:16]) %>% round(2),
+            Maximum = unlist(temp[17:32]) %>% round(2),
+            Mean = unlist(temp[33:48]) %>% round(2),
+            `Standard Deviation` = unlist(temp[49:64]) %>% round(2),
+            Median = unlist(temp[65:80]) %>% round(2)
+        ) 
 
-pretty.descriptive.birds.site <- tibble(
-    Metric = colnames(descriptive.bird.bysite)[2:17],
-    Minimum = as.list(temp[1:16]),
-    Maximum = as.list(temp[17:32]),
-    Mean = as.list(temp[33:48]),
-    `Standard Deviation` = as.list(temp[49:64]),
-    Median = as.list(temp[65:80])
-)
-
-remove(temp)
+        remove(temp)
 
         pretty.descriptive.birds.site$Metric <- c("Site Area (acres)", "Species Richness",
-                                                  "Sp. Richness (>2 sightings)",
-                                                  "Shannon Entropy", "Shannon Entropy (>2 sightings)",
+                                                  "Sp. Richness (>1 sighting)",
+                                                  "Shannon Entropy", "Shannon Entropy (>1 sighting)",
                                                   "Effective # Sp.",
-                                                  "Effective # Sp. (>2 sightings)",
-                                                  " No. Visits with No Birds in > 1 Sweep",
+                                                  "Effective # Sp. (>1 sighting)",
+                                                  " No. Visits with No Birds in >0 Sweeps",
                                                   "Foraging Bird Sp. Richness",
-                                                  "Foraging Bird Sp. Richness (>2 sightings)",
-                                                  "Foraging Shannon Entropy", "Foraging Shannon (>2 sightings)",
+                                                  "Foraging Bird Sp. Richness (>1 sighting)",
+                                                  "Foraging Shannon Entropy", "Foraging Shannon (>1 sighting)",
                                                   "Foraging Effective # Sp.",
-                                                  "Foraging Effective # Sp. (>2 sightings)",
+                                                  "Foraging Effective # Sp. (>1 sighting)",
                                                   "Native Conifer Abundance", "Native Conifer Density (#/acre)")
 
 
@@ -131,7 +130,7 @@ remove(temp)
                                                    "Calypte anna", "Thryomanes bewickii",
                                                    "Poecile atricapillus", "Poecile rufescens",
                                                    "Junco hyemalis", "Regulus satrapa",
-                                                   "no birds", "Sitta canadensis", "Regulus calendula",
+                                                   "No Birds", "Sitta canadensis", "Regulus calendula",
                                                    "Melospiza melodia",
                                                    "Pipilo maculatus", "Cyanocitta stelleri", "unknown",
                                                    "Dendroica coronata auduboni",
@@ -178,21 +177,19 @@ remove(temp)
                                                     "Min Foraging Incidence",
                                                     "Max Foraging Incidence", "Median Foraging Incidence")
 
-
+remove(descriptive.bird.bysp)
 
 
 ## -- CORRELATION INDEX / INDICATOR SPECIES ---------------------------------------------
 
     ## Point biserial correlation coeff.
 
-
-
         tree.cluster.pbiserial <-
             repeat.multipatt(
-                matrix.name = matrify.incidence.clean,
+                matrix.name = matrify.incidence_0.clean,
                 phi = FALSE,
                 func.name = "r.g",
-                cluster.name = vegetation.clusters$tree.cluster,
+                cluster.name = vegetation.clusters$tree.cluster.name,
                 plot.please = FALSE,
                 quiet = FALSE,
                 freq.cutoff = .5,
@@ -200,7 +197,6 @@ remove(temp)
             )
 
         tree.cluster.pbiserial$clust.type <- "Tree"
-        tree.cluster.pbiserial$group <- ifelse(tree.cluster.pbiserial$group == "Group 1", "Native", "Ornamental")
         tree.cluster.pbiserial <-
             tree.cluster.pbiserial[order(tree.cluster.pbiserial$mean.stat, decreasing = TRUE), ]
 
@@ -209,15 +205,12 @@ remove(temp)
         ## is held in the incidence matrix rather than the presence/absence
         ## matrix.
 
-
-
-
         shrub.cluster.pbiserial <-
             repeat.multipatt(
-                matrix.name = matrify.incidence.clean,
+                matrix.name = matrify.incidence_0.clean,
                 phi = FALSE,
                 func.name = "r.g",
-                cluster.name = as.factor(vegetation.clusters$shrub.cluster),
+                cluster.name = vegetation.clusters$shrub.cluster.name,
                 plot.please = FALSE,
                 stat.cutoff = .5,
                 freq.cutoff = .5,
@@ -225,32 +218,27 @@ remove(temp)
             )
 
         shrub.cluster.pbiserial$clust.type <- "Shrub"
-        shrub.cluster.pbiserial$group <-
-            ifelse(shrub.cluster.pbiserial$group == "Group 1",
-                   "Ornamental",
-                   "Native")
         shrub.cluster.pbiserial <-
             shrub.cluster.pbiserial[order(shrub.cluster.pbiserial$mean.stat,
                                           decreasing = TRUE), ]
 
+        ## Appears to be some change in multipatt algorithm--AMCR & TOWA aren't
+        ## showing up now. 
+        
         ## Bird species show up for both groups now. American Crow associated
         ## with Cluster 1 (ornamental) and Northern FLicker and Townsends
-        ## Warbler for Cluster 2 (Native).
+        ## Warbler for Cluster 2 (Native). For birds that show up in both
+        ## analyses, the results are similar (e.g. TOWA for shrub cluster is .51
+        ## vs .54 with essentially identical frequency)
 
-    ## For birds that show up in both analyses, the results are similar (e.g.
-    ## TOWA for shrub cluster is .51 vs .54 with essentially identical
-    ## frequency)
-
-        ## The phi and point biserial can also take negative values, which
+        ## The point biserial can also take negative values, which
         ## indicates that a species 'avoids' a specific area. With only two
         ## sites, this is the -value of the stat value
 
     pretty.pbiserial <- rbind(tree.cluster.pbiserial, shrub.cluster.pbiserial)
     pretty.pbiserial <- left_join(pretty.pbiserial, bird.guilds,  by = c("species" = "species.name"))
+    pretty.pbiserial <- left_join(pretty.pbiserial, bird.species.names, by = c("species" = "common.name"))
 
-    pretty.pbiserial$prettynames <- c("Red-breasted Nuthatch", "Brown Creeper", "Townsend's Warbler",
-                                      "Golden-crowned Kinglet",
-                                      "American Crow", "Townsend's Warbler")
     pretty.pbiserial$pval.range <- paste0(pretty.pbiserial$min.p.val, "-", pretty.pbiserial$max.p.val)
     pretty.pbiserial$foraging.substrate <- ifelse(pretty.pbiserial$foraging.substrate == "trees.shrubs",
                                                   "Trees & Shrubs",
@@ -259,10 +247,10 @@ remove(temp)
                                                  "Conifer",
                                                  "Open or No Preference")
 
-    colnames(pretty.pbiserial) <- c("species", "Times Significant \n(out of 100)","Frequency Significant",
-                                    "Mean Statistic", "Cluster","Minimum p-value","Maximum p-value",
-                                    "All p-values", "Vegetation Type", "Diet", "Foraging Substrate",
-                                    "Forest Preference", "Bird species", "p-value Range")
+    colnames(pretty.pbiserial) <- c("species", "Times Significant (out of 100)","Frequency Significant",
+                                    "Mean Statistic", "group","Minimum p-value","Maximum p-value",
+                                    "All p-values", "Community Type", "Vegetation Type", "Diet", "Foraging Substrate",
+                                    "Forest Preference", "Scientific Name", "Bird Species", "p-value Range")
 
 
 
@@ -270,80 +258,60 @@ remove(temp)
 
     ## Point biserial correlation coeff.
 
-        # summary(multipatt(x = matrify.foraging,
-        #                   cluster = as.factor(vegetation.clusters$tree.cluster), func = "r.g"))
-
         tree.cluster.pbiserial.foraging <-
             repeat.multipatt(
                 matrix.name = matrify.foraging,
                 phi = FALSE,
                 func.name = "r.g",
-                cluster.name = as.factor(vegetation.clusters$tree.cluster),
+                cluster.name = vegetation.clusters$tree.cluster.name,
                 plot.please = FALSE,
                 freq.cutoff = .5,
                 stat.cutoff = .5,
                 quiet = FALSE
             )
         tree.cluster.pbiserial.foraging$clust.type <- "Tree"
-        tree.cluster.pbiserial.foraging$group <- ifelse(tree.cluster.pbiserial.foraging$group == "Group 1",
-                                                        "Native",
-                                                        "Ornamental")
         tree.cluster.pbiserial.foraging <- tree.cluster.pbiserial.foraging[
-                                        order(tree.cluster.pbiserial.foraging$mean.stat, decreasing = TRUE),]
+                                        order(tree.cluster.pbiserial.foraging$groupname,
+                                              tree.cluster.pbiserial.foraging$mean.stat,
+                                              decreasing = TRUE),]
 
     ## Cluster 1 associated with a whole host of 'forest' species. Crows show up
     ## in the Ornamental clusters
-
-
-        # summary(multipatt(x = matrify.foraging,
-        #                   cluster = as.factor(vegetation.clusters$shrub.cluster), func = "r.g"))
-        #
-        # round(multipatt(x = matrify.foraging,
-        #                 cluster = as.factor(vegetation.clusters$shrub.cluster), func = "r.g")$str, 3)
 
         shrub.cluster.pbiserial.foraging <-
             repeat.multipatt(
                 matrix.name = matrify.foraging,
                 phi = FALSE,
                 func.name = "r.g",
-                cluster.name = as.factor(vegetation.clusters$shrub.cluster),
+                cluster.name = vegetation.clusters$shrub.cluster.name,
                 plot.please = FALSE,
                 stat.cutoff = .5,
                 freq.cutoff = .5,
                 quiet = FALSE
             )
-        shrub.cluster.pbiserial.foraging$clust.type <- "Shrub"
-        shrub.cluster.pbiserial.foraging$group <- ifelse(shrub.cluster.pbiserial.foraging$group == "Group 1",
-                                                         "Ornamental",
-                                                         "Native")
-        shrub.cluster.pbiserial.foraging <- shrub.cluster.pbiserial.foraging[
-                                                order(shrub.cluster.pbiserial.foraging$mean.stat,
-                                                                                   decreasing = TRUE),]
+        # shrub.cluster.pbiserial.foraging$clust.type <- "Shrub"
+        # shrub.cluster.pbiserial.foraging <- shrub.cluster.pbiserial.foraging[
+        #                                         order(shrub.cluster.pbiserial.foraging$mean.stat,
+        #                                                                            decreasing = TRUE),]
 
         ## Crow shows up again associated with Ornamental. Townsends shows up again
         ## for native, along with anna's hummingbird. They're territorial so not
         ## 100% sure how much is them claiming good habitat vs. nearby.
+        
+        ## Again the shrub results have changed. Not sure why.
 
     # Make a pretty table for foraging birds.
 
-        pretty.pbiserial.foraging <-
-            rbind(tree.cluster.pbiserial.foraging,
-                  shrub.cluster.pbiserial.foraging)
+        # pretty.pbiserial.foraging <-
+        #     rbind(tree.cluster.pbiserial.foraging,
+        #           shrub.cluster.pbiserial.foraging)
+        pretty.pbiserial.foraging <- tree.cluster.pbiserial.foraging
         pretty.pbiserial.foraging <-
             left_join(pretty.pbiserial.foraging,
                       bird.guilds,
                       by = c("species" = "species.name"))
-
-        pretty.pbiserial.foraging$prettynames <-
-            c(
-                "Red-breasted Nuthatch",
-                "Brown Creeper",
-                "American Crow",
-                "Chestnut-backed Chickadee",
-                "Townsend's Warbler",
-                "American Crow",
-                "Townsend's Warbler"
-            )
+        pretty.pbiserial.foraging <- left_join(pretty.pbiserial.foraging, bird.species.names, by = c("species" = "common.name"))
+        
         pretty.pbiserial.foraging$pval.range <-
             paste0(pretty.pbiserial.foraging$min.p.val,
                    "-",
@@ -362,7 +330,7 @@ remove(temp)
                 "Conifer",
                 "Open or No Preference"
             )
-        pretty.pbiserial.foraging$Diet <-
+        pretty.pbiserial.foraging$diet <-
             ifelse(
                 pretty.pbiserial.foraging$diet == "omnivore",
                 "Omnivore",
@@ -370,22 +338,10 @@ remove(temp)
             )
 
         colnames(pretty.pbiserial.foraging) <-
-            c(
-                "species",
-                "Times Significant \n(out of 100)",
-                "Frequency Significant",
-                "Mean Statistic",
-                "Cluster",
-                "Minimum p-value",
-                "Maximum p-value",
-                "All p-values",
-                "Vegetation Type",
-                "Diet",
-                "Foraging Substrate",
-                "Forest Preference",
-                "Bird species",
-                "p-value Range"
-            )
+            c("species", "Times Significant (out of 100)","Frequency Significant",
+              "Mean Statistic", "group", "Minimum p-value", "Maximum p-value",
+              "All p-values", "Community Type", "Vegetation Type", "Diet", "Foraging Substrate",
+              "Forest Preference", "Scientific Name", "Bird Species", "p-value Range")
 
 
 
@@ -396,64 +352,42 @@ remove(temp)
 
 #
 #
-# plot(sample.covariates$MedianHouseholdIncome_B19013e1, matrify.incidence$brown.creeper)
-# plot(management.landscaping$impervious.sqft, matrify.incidence$black.capped.chickadee)
-# plot(management.landscaping$impervious.sqft, matrify.incidence$brown.creeper)
-# plot(management.landscaping$tree.conifer.nat.dens, matrify.incidence$brown.creeper)
-# plot(management.landscaping$shrub.nat.dens, matrify.incidence$brown.creeper)
+plot(sample.covariates$MedianHouseholdIncome_B19013e1, matrify.incidence$brown.creeper)
+plot(sample.covariates$landrentperacre, matrify.incidence$brown.creeper)
+plot(sample.covariates$impervious.sqft, matrify.incidence$brown.creeper)
+plot(sample.covariates$conifer.nat.abundance, matrify.incidence$brown.creeper)
+plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
 
 
 ## -- REGRESSION PREPARATION ----------------------------------------------------------
 
         descriptive.bird.bysite$site
-        sample.covariates$SiteName # order seems wrong--probably b/c of fungi? fixed in intro
-        management.landscaping$Site
+        sample.covariates$SiteName 
         vegetation.clusters$SiteName
 
         univariate.sprich <-
             tibble(site = descriptive.bird.bysite$site,
                    bird.effective.sp_2 = descriptive.bird.bysite$bird.effective.sp_2) %>%
-            merge(., sample.covariates, by.x = "site", by.y = "SiteName") %>%
-            merge(., management.landscaping, by.x = "site", by.y = "Site") %>%
-            merge(., vegetation.clusters[ , -6], by.x = "site", by.y = "SiteName") %>%
-            merge(., site.detection.info, by.x = "site", by.y = "site.name")
-        univariate.sprich$impervious.sqft <-dens.matrify.gc$impervious.sqft
-
-
-        all.covariates <- univariate.sprich[, -2]
-
+                   left_join( . , sample.covariates, c("site" = "SiteName")) 
 
 # Outliers
-    # outlier1 <- par(mfrow = c(4,3), mar = c(2,2,2,1))
-    # dotchart(univariate.sprich$bird.effective.sp_2, main = "Effective Sp. Richness (>2)")
-    # dotchart(univariate.sprich$acres, main = "Acres")
-    # dotchart(univariate.sprich$dissolved_parcel_500m_buffer_impervious_500m_mean,
-    #          main = "500m Impervious Surface (%)")
-    # dotchart(univariate.sprich$Proportion_ForeignBorn_B99051e5, main = "% Foreign Born")
-    # dotchart(univariate.sprich$MedianHouseholdIncome_B19013e1, main = "Median Household Income ($)")
-    # dotchart(univariate.sprich$age.2017, main = "Site Age (baseline 2017)")
-    # dotchart(univariate.sprich$height.m.median, main = "Median DF Height (m)")
-    # dotchart(univariate.sprich$dead.wood, main = "All Dead Wood")
-    # dotchart(univariate.sprich$tree.conifer.nat.dens, main = "Native Conifer Density")
-    # dotchart(univariate.sprich$shrub.nat.dens, main = "Native Shrub Density")
-    # dotchart(univariate.sprich$impervious.sqft, main = "Site Impervious Surface (%)")
-    # (dev.off())
+    outlier1 <- par(mfrow = c(4,3), mar = c(2,2,2,1))
+    dotchart(univariate.sprich$bird.effective.sp_2, main = "Effective Sp. Richness (>2)")
+    dotchart(univariate.sprich$acres, main = "Acres")
+    dotchart(univariate.sprich$dissolved_parcel_500m_buffer_impervious_500m_mean,
+             main = "500m Impervious Surface (%)")
+    dotchart(univariate.sprich$Proportion_ForeignBorn_B99051e5, main = "% Foreign Born")
+    dotchart(univariate.sprich$MedianHouseholdIncome_B19013e1, main = "Median Household Income ($)")
+    dotchart(univariate.sprich$age.2017, main = "Site Age (baseline 2017)")
+    dotchart(univariate.sprich$height.m.median, main = "Median DF Height (m)")
+    dotchart(univariate.sprich$dead.wood, main = "All Dead Wood")
+    dotchart(univariate.sprich$conifer.nat.abundance, main = "Native Conifer Density")
+    dotchart(univariate.sprich$shrub.nat.dens, main = "Native Shrub Density")
+    dotchart(univariate.sprich$impervious.sqft, main = "Site Impervious Surface (%)")
+    (dev.off())
 
     # There are potential outliers--particularly Median DF Height (2 sites with
-    # no DF) and all dead wood (two sites w/high values) Can use third root for
-    # deadwood and ^2 for height...
-
-    # univariate.sprich$exp.3_dead.wood <- univariate.sprich$dead.wood^(1/3)
-    # univariate.sprich$exp3_age.2017 <- univariate.sprich$age.2017^3
-    # univariate.sprich$exp2_height.m.median <- univariate.sprich$height.m.median^2
-    #
-    # all.covariates$exp.3_dead.wood <- all.covariates$dead.wood^(1/3)
-    # all.covariates$exp3_age.2017 <- all.covariates$age.2017^3
-    # all.covariates$exp2_height.m.median <- all.covariates$height.m.median^2
-
-
-## -- SPECIES RICHNESS REGRESSION ------------------------------------------------------------
-
+    # no DF) and all dead wood (two sites w/high values).
 
 # Collinearity
     panel.hist <- function(x, ...)
@@ -477,12 +411,12 @@ remove(temp)
         text(0.5, 0.5, txt, cex = cex.cor + r)
     }
 
-    # pairs(
-    #     univariate.sprich[, c(2:3, 5:7, 20:22, 28)],
-    #     panel = panel.smooth,
-    #     upper.panel = panel.cor,
-    #     diag.panel = panel.hist
-    # )
+    pairs(
+        select_if(univariate.sprich, is.numeric),
+        panel = panel.smooth,
+        upper.panel = panel.cor,
+        diag.panel = panel.hist
+    )
 
     # want histograms to be uniformly distributed (across a range of values),
     # correlations between explanatory variables low. Most are fine except for
@@ -492,35 +426,58 @@ remove(temp)
 
 
 
-#
-# # Model execution
 
-
-
-
+## -- SPECIES RICHNESS REGRESSION ------------------------------------------------------------
+    
+    detection.vars <- c("proportion.loud.noise", "fog.proportion", "drizzle.proportion",
+                        "clouds.76.100.proportion", "Avg.Air.Temp.F.8v.median", "Speed.MPH.8v.median",
+                        "Gust.MPH.8v.median", "Tot.Precip.in.8v.sum", "Solar.Rad.W_m2.8v.median")
+        
+    neighborhood.vars <- c("dissolved_parcel_500m_buffer_impervious_500m_mean",
+                           "dissolved_parcel_500m_intersections_NUMPOINTS",
+                           "DistrictName",
+                           "Proportion_ForeignBorn_B99051e5",
+                           "MedianHouseholdIncome_B19013e1",
+                           "acres",
+                           "age.2017",
+                           "TV_mean",
+                           "SMV_mean",
+                           "landrentperacre")
+    
+    management.vars <- c("impervious.pct",
+                         "dead.wood",
+                         "Herbicide",
+                         "Fertilizer",
+                         "Irrigation",
+                         "Mulch",
+                         "Mushroom",
+                         "height.m.median",
+                         "stand.predate.development",
+                         "tree.nat.dens",
+                         "tree.nat.esr",
+                         "conifer.nat.dens",
+                         "shrub.nat.dens",
+                         "shrub.nat.esr")
+    
 ## Site Detection Variables
 
-    detection.vars <- colnames(site.detection.info[c(3,9:11,16,20,22,23,25)])
 
     detection.uPERM.results <-
         group.univ.PERMANOVA(
             var.names = detection.vars,
-            var.table = site.detection.info,
-            var.table.c = "site.detection.info",
+            var.table = univariate.sprich,
+            var.table.c = "univariate.sprich",
             num.control.vars = 0,
             species.vector = univariate.sprich$bird.effective.sp_2,
             species.vector.c = "univariate.sprich$bird.effective.sp_2",
             by.adonis2 = "terms"
         )
 
-    ## Nothing is significant after, clouds before
+    ## Nothing is significant after, clouds before adjustment.
 
-## Compare veg class and cluster groups.
+## Compare community groups.
 
-
-    univariate.sprich$bird.effective.sp_2
-
-    veg.group.vars <- c("tree.cluster","shrub.cluster","vegetation_class")
+    veg.group.vars <- c("tree.cluster","shrub.cluster")
 
     veg.uPERM.results <-
         group.univ.PERMANOVA(
@@ -535,27 +492,9 @@ remove(temp)
         )
 
 
-    # Tree cluster and shrub cluster are significant before adjustment
-
-
-
-
+    # Tree cluster and shrub cluster are both significant before adjustment (particularly tree)
 
 ## Neighborhood Variables
-
-    neighborhood.vars <- c("dissolved_parcel_500m_buffer_impervious_500m_mean",
-                           "dissolved_parcel_500m_intersections_NUMPOINTS",
-                           "BldgQuality_lookup",
-                           "DistrictName",
-                           "Proportion_ForeignBorn_B99051e5",
-                           "MedianHouseholdIncome_B19013e1",
-                           "acres",
-                           "age.2017",
-                           "TV_mean",
-                           "SMV_mean",
-                           "landrentperacre")
-
-
 
     neighborhood.uPERM.results <-
         group.univ.PERMANOVA(
@@ -568,31 +507,16 @@ remove(temp)
             species.vector.c = "univariate.sprich$bird.effective.sp_2",
             by.adonis2 = "terms"
         )
+    
     # Nothing significant, even with intersections and district and land rent and SMV/TV means added
 
 
 ## Management and Landscape Variables
 
-    mngmt.land.vars <- c(
-                            "stand.predate.development",
-                            "Cleanup",
-                            "Herbicide",
-                            "Fertilizer",
-                            "Irrigation",
-                            "Mulch",
-                            "Mushroom",
-                            "tree.conifer.nat.dens",
-                            "impervious.sqft",
-                            "dead.wood",
-                            "height.m.median",
-                            "shrub.nat.dens",
-                            "shrub.esr"
-                        )
-
 
     mngmt.uPERM.results <-
         group.univ.PERMANOVA(
-            var.names = mngmt.land.vars,
+            var.names = management.vars,
             var.table = univariate.sprich,
             var.table.c = "univariate.sprich",
             num.control.vars = 1,
@@ -602,10 +526,14 @@ remove(temp)
             by.adonis2 = "terms"
         )
 
+    ## native conifer density, native tree density, stand predate development,
+    ## impervious, native shrub density and species richness, and median height
+    ## are significant; most are median height and stands predating.
 
-
-    ## stand predate development, impervious, and median height are significant; IMP less so than others.
-
+    
+### TO HERE #######################
+    
+    
     # Look at R2 etc for model with all significant variables
     lmp(
         univariate.sprich$bird.effective.sp_2 ~
