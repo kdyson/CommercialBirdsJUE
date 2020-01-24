@@ -10,6 +10,7 @@
 ## -- SETUP -------------------------------------------------------------
 
 date <- format(Sys.Date(), "%m%d%Y")
+perm <- 99999
 
 ## Load required libraries
     # library(labdsv)
@@ -450,7 +451,6 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
                          "Fertilizer",
                          "Irrigation",
                          "Mulch",
-                         "Mushroom",
                          "height.m.median",
                          "stand.predate.development",
                          "tree.nat.dens",
@@ -530,30 +530,25 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
     ## impervious, native shrub density and species richness, and median height
     ## are significant; most are median height and stands predating.
 
-    
-### TO HERE #######################
-    
-    
-    # Look at R2 etc for model with all significant variables
-    lmp(
-        univariate.sprich$bird.effective.sp_2 ~
-            univariate.sprich$stand.predate.development +
-            univariate.sprich$height.m.median + univariate.sprich$impervious.sqft,
-        model = TRUE,
-        seqs = TRUE,
-        x = TRUE,
-        y = TRUE,
-        center = FALSE,
-        maxIter = 999999,
-        Ca = .01
-    )
 
-
-    adonis2(
-        univariate.sprich$bird.effective.sp_2 ~
-            univariate.sprich$stand.predate.development +
-            univariate.sprich$height.m.median + univariate.sprich$impervious.sqft
+# Muliple var examination:
+    sig.uPERM.results <- rbind(
+        detection.uPERM.results[detection.uPERM.results$F.pval < 0.05,],
+        neighborhood.uPERM.results[neighborhood.uPERM.results$F.pval < 0.05,],
+        mngmt.uPERM.results[mngmt.uPERM.results$F.pval < 0.05,],
+        veg.uPERM.results[veg.uPERM.results$F.pval < 0.05,]
     )
+    
+    multi.uPERM.results <-
+        AICc.table.all(
+            sig.vars = paste0("sample.covariates$", sig.uPERM.results$var.names[-1]),
+            control.var.char = paste0("sample.covariates$", sig.uPERM.results$var.names[1]),
+            matrix.char =  "univariate.sprich$bird.effective.sp_2",
+            perm = perm,
+            comb.incl = 1:3
+        )
+
+    # Check interaction effects for top models (none found)
 
     adonis2(
         univariate.sprich$bird.effective.sp_2 ~
@@ -563,21 +558,25 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
     adonis2(
         univariate.sprich$bird.effective.sp_2 ~
             univariate.sprich$clouds.76.100.proportion *
-            univariate.sprich$stand.predate.development )
+            univariate.sprich$stand.predate.development  *
+            univariate.sprich$height.m.median )
 
 
 
 ## Create a pretty table:
-
-        pretty.univ.results <- rbind(
-            detection.uPERM.results[order(rownames(detection.uPERM.results)),],
-            neighborhood.uPERM.results[order(rownames(neighborhood.uPERM.results)),],
-            mngmt.uPERM.results[order(rownames(mngmt.uPERM.results)),],
-            veg.uPERM.results[order(rownames(veg.uPERM.results)),]
-        )[, c(1, 3, 4, 6)]
-        colnames(pretty.univ.results) <-
-            c("Variation Explained", "pseudo-_F_", "_p_-value", "AICc")
-    pretty.univ.results$pretty.names <- c(
+    
+    
+    pretty.all.uPERM.results <- rbind(
+        detection.uPERM.results,
+        neighborhood.uPERM.results,
+        mngmt.uPERM.results,
+        veg.uPERM.results
+    )[, c(1, 3, 4:5, 8)]
+    
+    colnames(pretty.all.uPERM.results) <-
+        c("Variable", "Variation Explained per df", "pseudo-_F_", "_p_-value", "AICc")
+    
+    pretty.all.uPERM.results$pretty.names <- c(
         "Median Average Air Temperature (F)",
         "__Overcast Visits (%; Control Var)__",
         "Drizzle Visits (%)",
@@ -588,17 +587,18 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         "Median Wind Speed (MPH)",
         "Total Precipitation (in)",
         "Site Area (acres)",
+        
         "Building Age (years)",
-        "Building Quality",
         "Mean Impervious within 500m (%)",
         "Major Intersections within 500m",
         "Town (Redmond/Bellevue)",
         "Assessed Value per Acre",
         "Median Household Income (USD)",
         "Foreign Born (%)",
-        "Short and Medium Vegetation within 500m (%)",
-        "Tall Vegetation within 500m (%)",
-        "Cleanup (Y/N)",
+        "Short and Medium Vegetation within 500m (% of area)",
+        "Tall Vegetation within 500m (% of area)",
+        
+        "Native Conifer Density",
         "Dead Wood Abundance",
         "Fertilizer (Y/N)",
         "__Median Douglas Fir Height (m)__",
@@ -606,17 +606,21 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         "__On Site Impervious (%)__",
         "Irrigation (Y/N)",
         "Mulch (Y/N)",
-        "Mushroom (Y/N)",
-        "Native Shrub Effective Richness",
         "Native Shrub Density",
-        "__Stand Predating Development__",
-        "Native Conifer Density",
-        "Shrub Cluster Group",
-        "Tree Cluster Group",
-        "Vegetation Class"
+        "Native Shrub Effective Richness",
+        "__Stand Predates Development__",
+        "Native Tree Density",
+        "Native Tree Effective Richness",
+        "Shrub Community Type",
+        "Tree Community Type"
     )
-    pretty.univ.results$`Delta AICc` <- as.numeric(pretty.univ.results$AICc) - min(as.numeric(pretty.univ.results$AICc))
-
+    
+    ## TO HERE ######
+    
+    
+    pretty.univ.results$`Delta AICc` <-
+        as.numeric(pretty.univ.results$AICc) - min(as.numeric(pretty.univ.results$AICc))
+    
     adonis2(univariate.sprich$bird.effective.sp_2 ~
                 univariate.sprich$stand.predate.development +
                 univariate.sprich$height.m.median + univariate.sprich$impervious.sqft)
@@ -804,8 +808,6 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
 ##  -- PERMANOVA -------------------------------------------------------------
 
     ## All bird incidence data
-
-
 
         ## Detection Variables
 
