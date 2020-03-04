@@ -13,19 +13,14 @@ date <- format(Sys.Date(), "%m%d%Y")
 perm <- 99999
 
 ## Load required libraries
-    # library(labdsv)
-    # library(chron)
+    library(tibble)
     library(vegan)
-    # library(cluster)
-    # library(indicspecies)
     library(tidyr)
     library(data.table)
-    # library(MVN)
-    # library(dendextend)
     library(stringr)
     library(dplyr)
-    # library(car)
-    # library(AICcmodavg)
+    library(TITAN2)
+library(sjPlot)
 
 
 ## Source data + helper R script
@@ -125,240 +120,158 @@ vegetation.clusters <- vegetation.clusters[order(vegetation.clusters$SiteName), 
         descriptive.bird.bysp[is.na(descriptive.bird.bysp)] <- 0
 
         remove(temp)
+        descriptive.bird.bysp$incidence.range <- paste0(descriptive.bird.bysp$incidence.min,
+                                                        "-", descriptive.bird.bysp$incidence.max)
+        descriptive.bird.bysp$foraging.range <- paste0(descriptive.bird.bysp$foraging.min,
+                                                        "-", descriptive.bird.bysp$foraging.max)
+        
+        
+        pretty.guild <- bird.guilds
+        pretty.guild$diet <- ifelse(pretty.guild$diet == "omnivore",
+                                    "Omnivore",
+                                    ifelse(pretty.guild$diet == "grainivore",
+                                           "Grainivore",
+                                           "Insectivore"))
+        
+        pretty.guild$foraging.substrate <- ifelse(
+            pretty.guild$foraging.substrate == "ground",
+            "Ground",
+            ifelse(
+                pretty.guild$foraging.substrate == "trees.shrubs",
+                "Trees & Shrubs",
+                "Generalist*"
+            )
+        )
+        pretty.guild$forest.preference <- ifelse(
+            pretty.guild$forest.preference == "conifer",
+            "Conifer",
+            ifelse(
+                pretty.guild$forest.preference == "mixed",
+                "Mixed",
+                "Open or None"
+            )
+        )
+        colnames(pretty.guild) <- c("Species Name", "Diet", "Foraging Substrate", "Forest Preference")
 
-    bird.species.names <- tibble(common.name = unique(incidence$text.spp),
-                               scientific.name = c("Corvus brachyrhynchos", "Turdus migratorius",
-                                                   "Calypte anna", "Thryomanes bewickii",
-                                                   "Poecile atricapillus", "Poecile rufescens",
-                                                   "Junco hyemalis", "Regulus satrapa",
-                                                   "No Birds", "Sitta canadensis", "Regulus calendula",
-                                                   "Melospiza melodia",
-                                                   "Pipilo maculatus", "Cyanocitta stelleri", "unknown",
-                                                   "Dendroica coronata auduboni",
-                                                   "Patagioenas fasciata", "Certhia americana",
-                                                   "Vireo huttoni", "Colaptes auratus",
-                                                   "Carduelis pinus", "Sphyrapicus ruber",
-                                                   "Dendroica townsendi", "Ixoreus naevius",
-                                                   "Dryocopus pileatus", "Psaltriparus minimus",
-                                                   "Sturnus vulgaris", "Carpodacus mexicanus",
-                                                   "Troglodytes pacificus", "Passerella iliaca",
-                                                   "Loxia curvirostra", "Corvus corax",
-                                                   "Charadrius vociferus", "Columba livia", "Accipiter striatus",
-                                                   "Dryobates pubescens", "Accipiter cooperii",
-                                                   "Carpodacus purpureus", "Spinus tristis",
-                                                   "Passer domesticus"),
-                               pretty.common.name = c("American Crow", "American Robin", "Anna's Hummingbird",
-                                                      "Bewick's Wren",
-                                                      "Black-capped Chickadee", "Chestnut-backed Chickadee",
-                                                      "Dark-eyed Junco",
-                                                      "Golden-crowned Kinglet", "No Birds", "Red-breasted Nuthatch",
-                                                      "Ruby-crowned Kinglet", "Song Sparrow",
-                                                      "Spotted Towhee", "Stellers Jay",
-                                                      "Unknown sp.", "Audubon's Warbler",
-                                                      "Band-tailed Pigeon", "Brown Creeper",
-                                                      "Hutton's Vireo",
-                                                      "Northern Flicker", "Pine Siskin",
-                                                      "Red-breasted Sapsucker", "Townsend's Warbler",
-                                                      "Varied Thrush", "Pileated Woodpecker",
-                                                      "Bushtit", "European Starling",
-                                                      "House Finch", "Pacific Wren", "Fox Sparrow",
-                                                      "Red Crossbill", "Common Raven",
-                                                      "Killdeer", "Rock Pigeon", "Sharp-shinned Hawk",
-                                                      "Downy Woodpecker",
-                                                      "Coopers Hawk", "Purple Finch",
-                                                      "American Goldfinch", "House Sparrow"))
+    bird.species.names <- tibble(common.name = unique(incidence$text.spp))
+        bird.species.names$common.name <- bird.species.names$common.name[order(bird.species.names$common.name)]
+
+        bird.species.names$`Scientific Name` <-
+            c(
+                "Corvus brachyrhynchos",
+                "Spinus tristis",
+                "Turdus migratorius",
+                "Calypte anna",
+                "Setophaga coronata auduboni",
+                "Patagioenas fasciata",
+                "Thryomanes bewickii",
+                "Poecile atricapillus",
+                "Certhia americana",
+                "Psaltriparus minimus",
+                "Poecile rufescens",
+                "Corvus corax",
+                "Accipiter cooperii",
+                "Junco hyemalis",
+                "Dryobates pubescens",
+                "Sturnus vulgaris",
+                "Passerella iliaca",
+                "Regulus satrapa",
+                "Carpodacus mexicanus",
+                "Passer domesticus",
+                "Vireo huttoni",
+                "Charadrius vociferus",
+                "No Birds",
+                "Colaptes auratus",
+                "Troglodytes pacificus",
+                "Dryocopus pileatus",
+                "Spinus pinus",
+                "Haemorhous purpureus",
+                "Sitta canadensis",
+                "Sphyrapicus ruber",
+                "Loxia curvirostra",
+                "Columba livia",
+                "Regulus calendula",
+                "Accipiter striatus",
+                "Melospiza melodia",
+                "Pipilo maculatus",
+                "Cyanocitta stelleri",
+                "Setophaga townsendi",
+                "Unknown spp.",
+                "Ixoreus naevius"
+            )
+        
+        bird.species.names$pretty.common.name <-
+            c(
+                "American Crow",
+                "American Goldfinch",
+                "American Robin",
+                "Anna's Hummingbird",
+                "Audubon's (Yellow-rumped) Warbler",
+                "Band-tailed Pigeon",
+                "Bewick's Wren",
+                "Black-capped Chickadee",
+                "Brown Creeper",
+                "Bushtit",
+                "Chestnut-backed Chickadee",
+                "Common Raven",
+                "Coopers Hawk",
+                "Dark-eyed Junco",
+                "Downy Woodpecker",
+                "European Starling",
+                "Fox Sparrow",
+                "Golden-crowned Kinglet",
+                "House Finch",
+                "House Sparrow",
+                "Hutton's Vireo",
+                "Killdeer",
+                "No Birds",
+                "Northern Flicker",
+                "Pacific Wren",
+                "Pileated Woodpecker",
+                "Pine Siskin",
+                "Purple Finch",
+                "Red-breasted Nuthatch",
+                "Red-breasted Sapsucker",
+                "Red Crossbill",
+                "Rock Pigeon",
+                "Ruby-crowned Kinglet",
+                "Sharp-shinned Hawk",
+                "Song Sparrow",
+                "Spotted Towhee",
+                "Stellers Jay",
+                "Townsend's Warbler",
+                "Unknown spp.",
+                "Varied Thrush"
+            )
 
     pretty.descriptive.birds.species <- merge(descriptive.bird.bysp, bird.species.names, by.x = "species.name",
-                                              by.y = "common.name", all.x = TRUE, sort = FALSE)
-    pretty.descriptive.birds.species <- pretty.descriptive.birds.species[, c(11,10,2:9)]
-
-    colnames(pretty.descriptive.birds.species) <- c("Common Name", "Scientific Name",
-                                                    "Num Sites Seen", "Min Incidence", "Max Incidence",
-                                                    "Median Incidence", "Num Sites Seen Foraging",
-                                                    "Min Foraging Incidence",
-                                                    "Max Foraging Incidence", "Median Foraging Incidence")
-
-remove(descriptive.bird.bysp)
-
-
-## -- CORRELATION INDEX / INDICATOR SPECIES ---------------------------------------------
-
-    ## Point biserial correlation coeff.
-
-        tree.cluster.pbiserial <-
-            repeat.multipatt(
-                matrix.name = matrify.incidence_0.clean,
-                phi = FALSE,
-                func.name = "r.g",
-                cluster.name = vegetation.clusters$tree.cluster.name,
-                plot.please = FALSE,
-                quiet = FALSE,
-                freq.cutoff = .5,
-                stat.cutoff = .5
-            )
-
-        tree.cluster.pbiserial$clust.type <- "Tree"
-        tree.cluster.pbiserial <-
-            tree.cluster.pbiserial[order(tree.cluster.pbiserial$mean.stat, decreasing = TRUE), ]
-
-        ## Cluster 1 associated with a whole host of 'forest' species. More
-        ## things show up here, probably due to the fact that more information
-        ## is held in the incidence matrix rather than the presence/absence
-        ## matrix.
-
-        shrub.cluster.pbiserial <-
-            repeat.multipatt(
-                matrix.name = matrify.incidence_0.clean,
-                phi = FALSE,
-                func.name = "r.g",
-                cluster.name = vegetation.clusters$shrub.cluster.name,
-                plot.please = FALSE,
-                stat.cutoff = .5,
-                freq.cutoff = .5,
-                quiet = FALSE
-            )
-
-        shrub.cluster.pbiserial$clust.type <- "Shrub"
-        shrub.cluster.pbiserial <-
-            shrub.cluster.pbiserial[order(shrub.cluster.pbiserial$mean.stat,
-                                          decreasing = TRUE), ]
-
-        ## Appears to be some change in multipatt algorithm--AMCR & TOWA aren't
-        ## showing up now. 
-        
-        ## Bird species show up for both groups now. American Crow associated
-        ## with Cluster 1 (ornamental) and Northern FLicker and Townsends
-        ## Warbler for Cluster 2 (Native). For birds that show up in both
-        ## analyses, the results are similar (e.g. TOWA for shrub cluster is .51
-        ## vs .54 with essentially identical frequency)
-
-        ## The point biserial can also take negative values, which
-        ## indicates that a species 'avoids' a specific area. With only two
-        ## sites, this is the -value of the stat value
-
-    pretty.pbiserial <- rbind(tree.cluster.pbiserial, shrub.cluster.pbiserial)
-    pretty.pbiserial <- left_join(pretty.pbiserial, bird.guilds,  by = c("species" = "species.name"))
-    pretty.pbiserial <- left_join(pretty.pbiserial, bird.species.names, by = c("species" = "common.name"))
-
-    pretty.pbiserial$pval.range <- paste0(pretty.pbiserial$min.p.val, "-", pretty.pbiserial$max.p.val)
-    pretty.pbiserial$foraging.substrate <- ifelse(pretty.pbiserial$foraging.substrate == "trees.shrubs",
-                                                  "Trees & Shrubs",
-                                                  "Ground")
-    pretty.pbiserial$forest.preference <- ifelse(pretty.pbiserial$forest.preference == "conifer",
-                                                 "Conifer",
-                                                 "Open or No Preference")
-
-    colnames(pretty.pbiserial) <- c("species", "Times Significant (out of 100)","Frequency Significant",
-                                    "Mean Statistic", "group","Minimum p-value","Maximum p-value",
-                                    "All p-values", "Community Type", "Vegetation Type", "Diet", "Foraging Substrate",
-                                    "Forest Preference", "Scientific Name", "Bird Species", "p-value Range")
-
-
-
-## Repeat for foraging birds.
-
-    ## Point biserial correlation coeff.
-
-        tree.cluster.pbiserial.foraging <-
-            repeat.multipatt(
-                matrix.name = matrify.foraging,
-                phi = FALSE,
-                func.name = "r.g",
-                cluster.name = vegetation.clusters$tree.cluster.name,
-                plot.please = FALSE,
-                freq.cutoff = .5,
-                stat.cutoff = .5,
-                quiet = FALSE
-            )
-        tree.cluster.pbiserial.foraging$clust.type <- "Tree"
-        tree.cluster.pbiserial.foraging <- tree.cluster.pbiserial.foraging[
-                                        order(tree.cluster.pbiserial.foraging$groupname,
-                                              tree.cluster.pbiserial.foraging$mean.stat,
-                                              decreasing = TRUE),]
-
-    ## Cluster 1 associated with a whole host of 'forest' species. Crows show up
-    ## in the Ornamental clusters
-
-        shrub.cluster.pbiserial.foraging <-
-            repeat.multipatt(
-                matrix.name = matrify.foraging,
-                phi = FALSE,
-                func.name = "r.g",
-                cluster.name = vegetation.clusters$shrub.cluster.name,
-                plot.please = FALSE,
-                stat.cutoff = .5,
-                freq.cutoff = .5,
-                quiet = FALSE
-            )
-        # shrub.cluster.pbiserial.foraging$clust.type <- "Shrub"
-        # shrub.cluster.pbiserial.foraging <- shrub.cluster.pbiserial.foraging[
-        #                                         order(shrub.cluster.pbiserial.foraging$mean.stat,
-        #                                                                            decreasing = TRUE),]
-
-        ## Crow shows up again associated with Ornamental. Townsends shows up again
-        ## for native, along with anna's hummingbird. They're territorial so not
-        ## 100% sure how much is them claiming good habitat vs. nearby.
-        
-        ## Again the shrub results have changed. Not sure why.
-
-    # Make a pretty table for foraging birds.
-
-        # pretty.pbiserial.foraging <-
-        #     rbind(tree.cluster.pbiserial.foraging,
-        #           shrub.cluster.pbiserial.foraging)
-        pretty.pbiserial.foraging <- tree.cluster.pbiserial.foraging
-        pretty.pbiserial.foraging <-
-            left_join(pretty.pbiserial.foraging,
-                      bird.guilds,
-                      by = c("species" = "species.name"))
-        pretty.pbiserial.foraging <- left_join(pretty.pbiserial.foraging, bird.species.names, by = c("species" = "common.name"))
-        
-        pretty.pbiserial.foraging$pval.range <-
-            paste0(pretty.pbiserial.foraging$min.p.val,
-                   "-",
-                   pretty.pbiserial.foraging$max.p.val)
-
-        pretty.pbiserial.foraging$foraging.substrate <-
-            ifelse(
-                pretty.pbiserial.foraging$foraging.substrate == "trees.shrubs",
-
-                "Trees & Shrubs",
-                "Ground"
-            )
-        pretty.pbiserial.foraging$forest.preference <-
-            ifelse(
-                pretty.pbiserial.foraging$forest.preference == "conifer",
-                "Conifer",
-                "Open or No Preference"
-            )
-        pretty.pbiserial.foraging$diet <-
-            ifelse(
-                pretty.pbiserial.foraging$diet == "omnivore",
-                "Omnivore",
-                "Insectivore"
-            )
-
-        colnames(pretty.pbiserial.foraging) <-
-            c("species", "Times Significant (out of 100)","Frequency Significant",
-              "Mean Statistic", "group", "Minimum p-value", "Maximum p-value",
-              "All p-values", "Community Type", "Vegetation Type", "Diet", "Foraging Substrate",
-              "Forest Preference", "Scientific Name", "Bird Species", "p-value Range")
-
-
-
-
-
-
-
-
-#
-#
-plot(sample.covariates$MedianHouseholdIncome_B19013e1, matrify.incidence$brown.creeper)
-plot(sample.covariates$landrentperacre, matrify.incidence$brown.creeper)
-plot(sample.covariates$impervious.sqft, matrify.incidence$brown.creeper)
-plot(sample.covariates$conifer.nat.abundance, matrify.incidence$brown.creeper)
-plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
-
+                                              by.y = "common.name", all.x = TRUE, sort = FALSE) %>%
+                                        merge(pretty.guild, by.x = "species.name", by.y = "Species Name",
+                                              all.x = TRUE, sort = FALSE)
+    pretty.descriptive.birds.species <- pretty.descriptive.birds.species[ , c("pretty.common.name", "Scientific Name",
+                                                                              "Diet", "Foraging Substrate",
+                                                                              "Forest Preference", "num.sites",
+                                                                              "incidence.range", "incidence.median",
+                                                                              "foraging.num.sites", "foraging.range",
+                                                                              "foraging.median")]
+    
+    colnames(pretty.descriptive.birds.species) <-
+        c(
+            "Common Name",
+            "Scientific Name",
+            "Diet",
+            "Foraging Substrate",
+            "Forest Preference",
+            "Num Sites Seen",
+            "Incidence Range",
+            "Median Incidence",
+            "Num Sites Seen Foraging",
+            "Foraging Incidence Range",
+            "Median Foraging Incidence"
+        )
+    
+    remove(descriptive.bird.bysp, pretty.guild)
+    
 
 ## -- REGRESSION PREPARATION ----------------------------------------------------------
 
@@ -412,12 +325,12 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         text(0.5, 0.5, txt, cex = cex.cor + r)
     }
 
-    pairs(
-        select_if(univariate.sprich, is.numeric),
-        panel = panel.smooth,
-        upper.panel = panel.cor,
-        diag.panel = panel.hist
-    )
+    # pairs(
+    #     select_if(univariate.sprich, is.numeric),
+    #     panel = panel.smooth,
+    #     upper.panel = panel.cor,
+    #     diag.panel = panel.hist
+    # )
 
     # want histograms to be uniformly distributed (across a range of values),
     # correlations between explanatory variables low. Most are fine except for
@@ -425,18 +338,25 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
     # native conifer density. Expect that median DF height is going to be
     # important.
 
-
-
-
-## -- SPECIES RICHNESS REGRESSION ------------------------------------------------------------
+## -- Regression Variables ----------------------------------
     
-    detection.vars <- c("proportion.loud.noise", "fog.proportion", "drizzle.proportion",
-                        "clouds.76.100.proportion", "Avg.Air.Temp.F.8v.median", "Speed.MPH.8v.median",
-                        "Gust.MPH.8v.median", "Tot.Precip.in.8v.sum", "Solar.Rad.W_m2.8v.median")
-        
+    detection.vars <-
+        c(
+            "proportion.loud.noise",
+            "fog.proportion",
+            "drizzle.proportion",
+            "clouds.76.100.proportion",
+            "Avg.Air.Temp.F.8v.median",
+            "Speed.MPH.8v.median",
+            "Gust.MPH.8v.median",
+            "Tot.Precip.in.8v.sum",
+            "Solar.Rad.W_m2.8v.median"
+        )
+    
+    veg.group.vars <- c("tree.cluster.name","shrub.cluster.name")
+    
     neighborhood.vars <- c("dissolved_parcel_500m_buffer_impervious_500m_mean",
                            "dissolved_parcel_500m_intersections_NUMPOINTS",
-                           "DistrictName",
                            "Proportion_ForeignBorn_B99051e5",
                            "MedianHouseholdIncome_B19013e1",
                            "acres",
@@ -453,12 +373,27 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
                          "Mulch",
                          "height.m.median",
                          "stand.predate.development",
+                         
+                         "tree.dens",
                          "tree.nat.dens",
                          "tree.nat.esr",
+                         "tree.orn.dens",
+                         "tree.orn.esr",
+                         
                          "conifer.nat.dens",
+                         
+                         "shrub.dens",
                          "shrub.nat.dens",
-                         "shrub.nat.esr")
+                         "shrub.nat.esr",
+                         "shrub.orn.dens",
+                         "shrub.orn.esr"
+                         )
+
     
+    
+## -- Eff. Sp. Richness PERMANOVA ------------------------------------------------------------
+    
+        
 ## Site Detection Variables
 
 
@@ -477,7 +412,6 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
 
 ## Compare community groups.
 
-    veg.group.vars <- c("tree.cluster","shrub.cluster")
 
     veg.uPERM.results <-
         group.univ.PERMANOVA(
@@ -530,36 +464,9 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
     ## impervious, native shrub density and species richness, and median height
     ## are significant; most are median height and stands predating.
 
-
-# Muliple var examination:
-    sig.uPERM.results <- rbind(
-        detection.uPERM.results[detection.uPERM.results$F.pval < 0.05,],
-        neighborhood.uPERM.results[neighborhood.uPERM.results$F.pval < 0.05,],
-        mngmt.uPERM.results[mngmt.uPERM.results$F.pval < 0.05,],
-        veg.uPERM.results[veg.uPERM.results$F.pval < 0.05,]
-    )
+    plot(univariate.sprich$bird.effective.sp_2 ~ univariate.sprich$tree.orn.dens)
+    plot(univariate.sprich$bird.effective.sp_2 ~ univariate.sprich$tree.nat.dens)
     
-    multi.uPERM.results <-
-        AICc.table.all(
-            sig.vars = paste0("sample.covariates$", sig.uPERM.results$var.names[-1]),
-            control.var.char = paste0("sample.covariates$", sig.uPERM.results$var.names[1]),
-            matrix.char =  "univariate.sprich$bird.effective.sp_2",
-            perm = perm,
-            comb.incl = 1:3
-        )
-
-    # Check interaction effects for top models (none found)
-
-    adonis2(
-        univariate.sprich$bird.effective.sp_2 ~
-            univariate.sprich$clouds.76.100.proportion *
-            univariate.sprich$height.m.median )
-
-    adonis2(
-        univariate.sprich$bird.effective.sp_2 ~
-            univariate.sprich$clouds.76.100.proportion *
-            univariate.sprich$stand.predate.development  *
-            univariate.sprich$height.m.median )
 
 
 
@@ -591,70 +498,99 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         "Building Age (years)",
         "Mean Impervious within 500m (%)",
         "Major Intersections within 500m",
-        "Town (Redmond/Bellevue)",
         "Assessed Value per Acre",
         "Median Household Income (USD)",
         "Foreign Born (%)",
         "Short and Medium Vegetation within 500m (% of area)",
         "Tall Vegetation within 500m (% of area)",
         
-        "Native Conifer Density",
+        "__Native Conifer Density__",
         "Dead Wood Abundance",
         "Fertilizer (Y/N)",
-        "__Median Douglas Fir Height (m)__",
+        "__Median Dominant Conifer Height (m)__",
         "Herbicide (Y/N)",
         "__On Site Impervious (%)__",
         "Irrigation (Y/N)",
         "Mulch (Y/N)",
-        "Native Shrub Density",
-        "Native Shrub Effective Richness",
+        "Shrub Density",
+        "__Native Shrub Density__",
+        "__Native Shrub Effective Richness__",
+        "Non-native Shrub Density",
+        "Non-native Shrub Effective Richness",
         "__Stand Predates Development__",
-        "Native Tree Density",
+        "Tree Density",
+        "__Native Tree Density__",
         "Native Tree Effective Richness",
-        "Shrub Community Type",
-        "Tree Community Type"
+        "__Non-native Tree Density__",
+        "Non-native Tree Effective Richness",
+        "__Shrub Community Type__",
+        "__Tree Community Type__"
     )
     
-    ## TO HERE ######
+
     
+    pretty.all.uPERM.results$`Delta AICc` <-
+        pretty.all.uPERM.results$AICc - min(pretty.all.uPERM.results$AICc)
     
-    pretty.univ.results$`Delta AICc` <-
-        as.numeric(pretty.univ.results$AICc) - min(as.numeric(pretty.univ.results$AICc))
+
     
-    adonis2(univariate.sprich$bird.effective.sp_2 ~
-                univariate.sprich$stand.predate.development +
-                univariate.sprich$height.m.median + univariate.sprich$impervious.sqft)
-
-
-
-
-    ## Compare competing models:
-
-    univ.AICc.tab <-
+    # Muliple var examination:
+    sig.uPERM.results <- rbind(
+        detection.uPERM.results[detection.uPERM.results$F.pval < 0.05,],
+        neighborhood.uPERM.results[neighborhood.uPERM.results$F.pval < 0.05,],
+        mngmt.uPERM.results[mngmt.uPERM.results$F.pval < 0.05,],
+        veg.uPERM.results[veg.uPERM.results$F.pval < 0.05,]
+    )
+    sig.uPERM.results$delta.aic <- sig.uPERM.results$AIC.stat-
+        min(sig.uPERM.results$AIC.stat)
+    
+    multi.uPERM.results <-
         AICc.table.all(
-            sig.vars = c(
-                "univariate.sprich$tree.cluster.name",
-                "univariate.sprich$shrub.cluster.name",
-                "univariate.sprich$stand.predate.development",
-                "univariate.sprich$impervious.sqft",
-                "univariate.sprich$height.m.median"
-            ),
-            matrix.char = "univariate.sprich$bird.effective.sp_2",
-            comb.incl = 1:3,
-            control.var.char = "univariate.sprich$clouds.76.100.proportion",
-            method = "eucli",
-            extra.var = TRUE,
-            extra.var.char = "univariate.sprich$MedianHouseholdIncome_B19013e1"
+            sig.vars = paste0("sample.covariates$", sig.uPERM.results$var.names[-1]),
+            control.var.char = paste0("sample.covariates$", sig.uPERM.results$var.names[1]),
+            matrix.char =  "univariate.sprich$bird.effective.sp_2",
+            perm = perm,
+            comb.incl = 1:4
         )
+    
+    multi.uPERM.AICc.weights.byvar <- AICc.weights.byvar(
+        sig.vars = paste0("sample.covariates$", sig.uPERM.results$var.names[-1]),
+        multi.uPERM.results
+)
+    
+    # Check interaction effects for top models (none found)
+    
+    adonis2(
+        univariate.sprich$bird.effective.sp_2 ~
+            univariate.sprich$clouds.76.100.proportion *
+            univariate.sprich$height.m.median )
+    
+    adonis2(
+        univariate.sprich$bird.effective.sp_2 ~
+            univariate.sprich$clouds.76.100.proportion *
+            univariate.sprich$stand.predate.development  *
+            univariate.sprich$height.m.median )
+    
 
-    pretty.univ.AICc.tab <-
-        univ.AICc.tab[c(which(univ.AICc.tab$`Delta AICc` <= 2), nrow(univ.AICc.tab)),]
 
-    pretty.univ.AICc.tab$Model <-
+    ## Make a table for 1+ variable models
+
+
+    pretty.AICc.uPERM.tab <-
+        multi.uPERM.results[c(1, which(multi.uPERM.results$`Delta AICc` <= 3))
+                            , ]
+
+    pretty.AICc.uPERM.tab$Model <-
         c(
-            "Overcast and Median DF Height (m)",
-            "Overcast, Stand Predating Development, and Median DF Height",
-            "Overcast and Median HH Income ($)"
+            "Proportion of Visits Overcast",
+            "Overcast + Median Dom. Conif. Height (m)",
+            "Overcast + Median Dom. Conif. Height + Native Conifer Density",
+            "Overcast + Median Dom. Conif. Height + Impervious on Site (%)",
+            "Overcast + Median Dom. Conif. Height + Native Shrub Density",
+            "Overcast + Median Dom. Conif. Height + Stand Predating Development",
+            "Overcast + Median Dom. Conif. Height + Native Tree Density",
+            "Overcast + Median Dom. Conif. Height + Tree Community Type"
+            
         )
 
 
@@ -673,190 +609,146 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         "open.esr"
     )
     guild.cols.totest.v <-
-        as.data.frame(guild.eff.sp.rich_2.clean[, guild.cols.totest.c])
+        guild.eff.sp.rich_2.clean[, guild.cols.totest.c]
 
-    guild.imperv.results <-
-        data.frame(
+    
+    
+    
+    guild.tests <- function(guild.var.name, guild.var.vector) {
+        temp <- data.frame(
             row.names = guild.cols.totest.c,
             corr.SP = rep(NA,
                           times = length(guild.cols.totest.c)),
             var.explnd = rep(NA),
             F.stat = rep(NA),
             prob.pval = rep(NA),
-            AICc = rep(NA),
-            adj.pval = rep(NA)
+            lin.R2 = rep(NA)
         )
-
-
-    for (i in 1:length(guild.cols.totest.c)) {
-        species.vect.c <-
-            paste0("guild.eff.sp.rich_2.clean$", guild.cols.totest.c[i])
-
-        PERM.temp <-
-            group.univ.PERMANOVA(
-                var.names = "impervious.sqft",
-                var.table = univariate.sprich,
-                var.table.c = "univariate.sprich",
-                species.vector = guild.cols.totest.v[i],
-                species.vector.c = species.vect.c,
-                num.control.vars = 0
-            )
-
-
-        # add calculated values to table:
-        guild.imperv.results$corr.SP[i] <-
-            cor(univariate.sprich$impervious.sqft,
-                guild.cols.totest.v[i],
-                method = "sp")
-        guild.imperv.results$var.explnd[i] <-
-            PERM.temp$var.explnd
-        guild.imperv.results$F.stat[i] <- PERM.temp$pseudo.F
-        guild.imperv.results$prob.pval[i] <-
-            PERM.temp$F.pval
-        guild.imperv.results$AICc[i] <- PERM.temp$AICc[[1]]
-
-    }
-
-    guild.imperv.results$adj.pval <-
-        p.adjust(p = guild.imperv.results$prob.pval,
-                 method = "holm")
-
-
-    # Stands predating development
-
-            guild.spd.results <-
-                data.frame(
-                    row.names = guild.cols.totest.c,
-                    # corr.SP = rep(NA,
-                    #               times = length(guild.cols.totest.c)),
-                    var.explnd = rep(NA,
-                                     times = length(guild.cols.totest.c)),
-                    F.stat = rep(NA),
-                    prob.pval = rep(NA),
-                    AICc = rep(NA),
-                    adj.pval = rep(NA)
-                )
-
-            for (i in 1:length(guild.cols.totest.c)) {
-
-                species.vect.c <- paste0("guild.eff.sp.rich_2.clean$",guild.cols.totest.c[i])
-
-                PERM.temp <- group.univ.PERMANOVA(var.names = "stand.predate.development",
-                                                  var.table = univariate.sprich,
-                                                  var.table.c = "univariate.sprich",
-                                                  species.vector = guild.cols.totest.v[i],
-                                                  species.vector.c = species.vect.c,
-                                                  num.control.vars = 0)
-
-
-                # add calculated values to table:
-                # guild.spd.results$corr.SP[i] <- icc(univariate.sprich$stand.predate.development,
-                #                                        guild.cols.totest.v[i], method = "sp")
-                guild.spd.results$var.explnd[i] <- PERM.temp$var.explnd
-                guild.spd.results$F.stat[i] <- PERM.temp$pseudo.F
-                guild.spd.results$prob.pval[i] <- PERM.temp$F.pval
-                guild.spd.results$AICc[i] <- PERM.temp$AICc[[1]]
-
-            }
-
-            guild.spd.results$adj.pval <- p.adjust(p = guild.spd.results$prob.pval,
-                                                   method = "holm")
-
-
-
-
-
-
-
-        guild.DFheight.results <- data.frame(row.names = guild.cols.totest.c,
-                                             corr.SP = rep(NA,
-                                                           times = length(guild.cols.totest.c)),
-                                             var.explnd = rep(NA),
-                                             F.stat = rep(NA),
-                                             prob.pval = rep(NA),
-                                             AICc = rep(NA),
-                                             adj.pval = rep(NA)
-        )
-
+        
         for (i in 1:length(guild.cols.totest.c)) {
-
-            species.vect.c <- paste0("guild.eff.sp.rich_2.clean$",guild.cols.totest.c[i])
-
-            PERM.temp <- group.univ.PERMANOVA(var.names = "height.m.median",
-                                              var.table = univariate.sprich,
-                                              var.table.c = "univariate.sprich",
-                                              species.vector = guild.cols.totest.v[i],
-                                              species.vector.c = species.vect.c,
-                                              num.control.vars = 0)
-
-
+            species.vect.c <-
+                paste0("guild.eff.sp.rich_2.clean$", guild.cols.totest.c[i])
+            
+            PERM.temp <-
+                group.univ.PERMANOVA(
+                    var.names = guild.var.name,
+                    var.table = univariate.sprich,
+                    var.table.c = "univariate.sprich",
+                    species.vector = guild.cols.totest.v[i],
+                    species.vector.c = species.vect.c,
+                    num.control.vars = 1, 
+                    control.vars = "clouds.76.100.proportion"
+                    
+                )
+            
+            
             # add calculated values to table:
-            guild.DFheight.results$corr.SP[i] <- cor(univariate.sprich$height.m.median,
-                                                   guild.cols.totest.v[i], method = "sp")
-            guild.DFheight.results$var.explnd[i] <- PERM.temp$var.explnd
-            guild.DFheight.results$F.stat[i] <- PERM.temp$pseudo.F
-            guild.DFheight.results$prob.pval[i] <- PERM.temp$F.pval
-            guild.DFheight.results$AICc[i] <- PERM.temp$AICc[[1]]
+            if(is.numeric(guild.var.vector)){
+                            temp$corr.SP[i] <-
+                cor(
+                    guild.var.vector,
+                    guild.cols.totest.v[i],
+                    method = "sp"
+                )
+            }
+            else {temp$corr.SP[i] <- "not numeric"}
+            
+            temp$var.explnd[i] <- PERM.temp$var.explnd
+            temp$F.stat[i] <- PERM.temp$pseudo.F
+            temp$prob.pval[i] <- PERM.temp$F.pval
 
+            model.lm <- lm(formula = guild.cols.totest.v[[i]] ~ guild.var.vector)
+            temp$lin.R2[i] <- summary(model.lm)$r.squared
+            
         }
+        
+        return(temp)
+    }
+    
+    
+    
 
-        guild.DFheight.results$adj.pval <- p.adjust(p = guild.DFheight.results$prob.pval,
-                                                    method = "holm")
+    
+## Guilds with median height of dominant trees
+    
+    guild.height.results <- guild.tests(guild.var.name = "height.m.median",
+                                        guild.var.vector = univariate.sprich$height.m.median)
+    
+
+# Stands predating development
+
+    guild.spd.results <- guild.tests("stand.predate.development",
+                                     univariate.sprich$stand.predate.development)
+    
+    
+# Less significant vars
+    
+    guild.imperv.results <- guild.tests("conifer.nat.dens",
+                                        univariate.sprich$conifer.nat.dens)
+    guild.snd.results <- guild.tests("shrub.nat.dens",
+                                        univariate.sprich$shrub.nat.dens)
+    guild.snesr.results <- guild.tests("shrub.nat.esr",
+                                        univariate.sprich$shrub.nat.esr)
+    guild.tnd.results <- guild.tests("tree.nat.dens",
+                                        univariate.sprich$tree.nat.dens)
+    guild.shrubcomm.results <- guild.tests("shrub.cluster.name",
+                                        univariate.sprich$shrub.cluster.name)
+    guild.treecomm.results <- guild.tests("tree.cluster.name",
+                                        univariate.sprich$tree.cluster.name)
+     
+               
 
 
 
-##  -- PERMANOVA -------------------------------------------------------------
-
-    ## All bird incidence data
-
-        ## Detection Variables
 
 
-        PERMANOVA.detection <-
+
+
+
+##  -- Incidence PERMANOVA ---------------------------------------------------------
+
+    ## Detection Variables
+
+
+        detection.mPERM.results <-
             group.PERMANOVA(
                 var.names = detection.vars,
-                var.table =  site.detection.info,
-                var.table.c = "site.detection.info",
-                species.table = matrify.incidence.clean,
-                species.table.c = "matrify.incidence.clean",
+                var.table =  sample.covariates,
+                var.table.c = "sample.covariates",
+                species.table = matrify.incidence_0.clean,
+                species.table.c = "matrify.incidence_0.clean",
                 num.control.vars = 0,
                 by.adonis2 = "terms"
             )
         ## clouds again significant before adjustments
 
-        ## Group Membership
+    ## Group Membership
 
-
-        PERMANOVA.veg.groups <-
+        veg.mPERM.results <-
             group.PERMANOVA(
-                var.names = c(
-                    "tree.cluster.name",
-                    "shrub.cluster.name",
-                    "vegetation_class"
-                ),
-                var.table =  all.covariates,
-                var.table.c = "all.covariates",
-                species.table = matrify.incidence.clean,
-                species.table.c = "matrify.incidence.clean",
+                veg.group.vars,
+                var.table =  sample.covariates,
+                var.table.c = "sample.covariates",
+                species.table = matrify.incidence_0.clean,
+                species.table.c = "matrify.incidence_0.clean",
                 num.control.vars = 1,
                 control.vars = "clouds.76.100.proportion",
                 by.adonis2 = "terms"
             )
 
-        ## Tree cluster name is significant. beta dispersion is not!
+        ## Tree community type is significant. beta dispersion is not!
 
 
-        ## Socio-economic neighborhood variables...
+    ## Socio-economic neighborhood variables...
 
 
-
-        PERMANOVA.neighborhood <-
+        neighborhood.mPERM.results <-
             group.PERMANOVA(
                 var.names = neighborhood.vars,
-                var.table =  all.covariates,
-                var.table.c = "all.covariates",
-                species.table = matrify.incidence.clean,
-                species.table.c = "matrify.incidence.clean",
+                var.table =  sample.covariates,
+                var.table.c = "sample.covariates",
+                species.table = matrify.incidence_0.clean,
+                species.table.c = "matrify.incidence_0.clean",
                 num.control.vars = 1,
                 control.vars = "clouds.76.100.proportion",
                 by.adonis2 = "terms"
@@ -865,16 +757,16 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         ## none significant before adjustment
 
 
-        ## Landscaping and maintenance variables
+    ## Landscaping and maintenance variables
 
 
-        PERMANOVA.mangt.land <-
+        mngmt.mPERM.results <-
             group.PERMANOVA(
-                var.names = mngmt.land.vars,
-                var.table =  all.covariates,
-                var.table.c = "all.covariates",
-                species.table = matrify.incidence.clean,
-                species.table.c = "matrify.incidence.clean",
+                var.names = management.vars,
+                var.table =  sample.covariates,
+                var.table.c = "sample.covariates",
+                species.table = matrify.incidence_0.clean,
+                species.table.c = "matrify.incidence_0.clean",
                 num.control.vars = 1,
                 control.vars = "clouds.76.100.proportion",
                 by.adonis2 = "terms"
@@ -882,107 +774,71 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
 
         ## dead wood, median height, impervious sufrace, shrub ESR,
         ## native shrub density, stands predating development, and
-        ## native conifer density, are significant,. note that a number
+        ## native conifer density, etc. are significant,. note that a number
         ## of the maintenance landscaping variables are not significant
-        ## (location) but are significant in spread as with fungi.
+        ## (location) but are significant in spread as with fungi. 
 
 
-        pretty.multi.results <- rbind(
-            PERMANOVA.detection[order(rownames(PERMANOVA.detection)), ],
-            PERMANOVA.neighborhood[order(rownames(PERMANOVA.neighborhood)), ],
-            PERMANOVA.mangt.land[order(rownames(PERMANOVA.mangt.land)), ],
-            PERMANOVA.veg.groups[order(rownames(PERMANOVA.veg.groups)), ]
-        )[, c(1, 3, 4, 6)]
-        colnames(pretty.multi.results) <-
-            c("Variation Explained", "pseudo-_F_", "_p_-value", "Dispersion _p_-value")
-
-        pretty.multi.results.sig <- pretty.multi.results[ pretty.multi.results$`_p_-value` < 0.05, ]
+        pretty.all.mPERM.results <- rbind(
+            detection.mPERM.results,
+            neighborhood.mPERM.results,
+            mngmt.mPERM.results,
+            veg.mPERM.results
+        )[, c(1, 3, 4, 5, 10)]
+        colnames(pretty.all.mPERM.results) <-
+            c("Variable", "Variation Explained per df", "pseudo-_F_", "_p_-value", "AICc")
+        
+        sig.mPERM.results <- pretty.all.mPERM.results[ pretty.all.mPERM.results$`_p_-value` < 0.05, ]
 
 
 ## AICc comparison:
 
-            # Overall, six significant variables: tree group, median height, imp surface
-            # stands predating and native conifer density. and shrub esr.
+    # Overall, nine significant variables: native conifer density, dead
+    # wood, median height, impervious on site, native shrub density,
+    # native shrub esr, stands predating development, native tree
+    # density, tree community
 
 
-        sig.incidence.vars.PERMANOVA <-
-            c(
-                "all.covariates$tree.cluster.name",
-                "all.covariates$stand.predate.development",
-                "all.covariates$tree.conifer.nat.dens",
-                "all.covariates$impervious.sqft",
-                "all.covariates$dead.wood",
-                "all.covariates$height.m.median",
-                "all.covariates$shrub.esr"
-            )
-
-
-        incidence.AICc.tab <-
+        multi.mPERM.results <-
             AICc.table.all(
-                sig.vars = sig.incidence.vars.PERMANOVA,
-                matrix.char = "matrify.incidence.clean",
+                sig.vars = paste0("sample.covariates$",sig.mPERM.results$Variable[-1]),
+                matrix.char = "matrify.incidence_0.clean",
                 comb.incl = 1:4,
-                control.var.char = "all.covariates$clouds.76.100.proportion",
-                extra.var = TRUE,
-                extra.var.char = "all.covariates$MedianHouseholdIncome_B19013e1"
+                control.var.char = "sample.covariates$clouds.76.100.proportion",
+                perm = perm
             )
+        
+        multi.mPERM.AICc.weights.byvar <- AICc.weights.byvar(
+            sig.vars = paste0("sample.covariates$",sig.mPERM.results$Variable[-1]),
+            multi.mPERM.results
+        )
 
 ## Create a pretty table: Model (name), Delta AICc, Pseudo-F, p-value
 
 
-        pretty.incidence.AICc <-
-            incidence.AICc.tab[c(which(incidence.AICc.tab$`Delta AICc` <= 2),
-                                 1,
-                                 nrow(incidence.AICc.tab)) ,]
-
-
-        pretty.incidence.AICc$Model <-
+        pretty.AICc.mPERM.tab <-
+            multi.mPERM.results[c(1, which(multi.mPERM.results$`Delta AICc` <= 2))
+                                  ,]
+        
+        # pretty.AICc.mPERM.tab[ , select_if(is.numeric)] <-
+        #     round(pretty.AICc.mPERM.tab[-1], 3)
+        
+        pretty.AICc.mPERM.tab$Model <-
             c(
-                "Overcast and Native Conifer Density",
-                "Overcast and Impervious (on site)",
-                "Overcast and Median DF Height (m)",
-                "Overcast, Tree Community Cluster, and Median DF Height",
-                "Overcast, Native Conifer Density, and Median DF Height",
-                "Overcast, Impervious, and Median DF Height",
-                "Overcast, Dead Wood, and Median DF Height",
-                "Overcast, Median DF Height, and Native Shrub Effective Richness",
                 "Proportion of Visits Overcast",
-                "Overcast and Median HH Income ($)"
+                "Overcast + Native Conifer Density",
+                "Overcast + Median Dom. Conif. Height (m)",
+                "Overcast + Impervious on Site (%)",
+                "Overcast + Native Conifer Density, and Median Dom. Conif. Height",
+                "Overcast + Dead Wood + Median Dom. Conif. Height",
+                "Overcast + Median Dom. Conif. Height + Impervious on Site",
+                "Overcast + Median Dom. Conif. Height + Native Shrub ESR",
+                "Overcast + Median Dom. Conif. Height + All Tree Density",
+                "Overcast + Median Dom. Conif. Height + Native Tree Density",
+                "Overcast + Median Dom. Conif. Height + Non-native Tree Density",
+                "Overcast + Median Dom. Conif. Height + Tree Community Type"
+
             )
-
-
-
-
-
-
-        end <- nrow(pretty.incidence.AICc)
-
-        pretty.incidence.AICc <-
-            pretty.incidence.AICc[, c(6, 2, 7, 8, 3:5)]
-
-        pretty.incidence.AICc[-1] <-
-            round(pretty.incidence.AICc[-1], 3)
-        #
-        #
-        # pretty.incidence.AICc$`Delta AICc`[end] <-
-        #     paste0("> ", pretty.incidence.AICc$`Delta AICc`[end])
-        # pretty.incidence.AICc$`Pseudo-_F_`[end] <- paste0("< ",
-        #                                                   pretty.incidence.AICc$`Pseudo-_F_`[end])
-        # pretty.incidence.AICc$`Adjusted p-value` <-
-        #     p.adjust(pretty.incidence.AICc$`p-value`,
-        #              method = "holm")
-        #
-        #
-        # pretty.incidence.AICc$`Adjusted p-value`[end] <-
-        #     paste0("> ",
-        #            pretty.incidence.AICc$`Adjusted p-value`[end])
-        # pretty.incidence.AICc$`p-value`[end] <- paste0("> ",
-        #                                                pretty.incidence.AICc$`p-value`[end])
-        # pretty.incidence.AICc$`Relative Likelihood`[end] <-
-        #     paste0("< ",
-        #            pretty.incidence.AICc$`Relative Likelihood`[end])
-        #
-
 
 
 
@@ -992,12 +848,11 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
 
     ## Detection Variables
 
-
-        PERMANOVA.foraging.detection <-
+        detection.mPERM.foraging <-
             group.PERMANOVA(
                 var.names = detection.vars,
-                var.table =  site.detection.info,
-                var.table.c = "site.detection.info",
+                var.table =  sample.covariates,
+                var.table.c = "sample.covariates",
                 species.table = matrify.foraging,
                 species.table.c = "matrify.foraging",
                 num.control.vars = 0,
@@ -1008,15 +863,10 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
 
     ## Group Membership
 
-
-        PERMANOVA.foraging.veg.groups <- group.PERMANOVA(
-            var.names = c(
-                "tree.cluster.name",
-                "shrub.cluster.name",
-                "vegetation_class"
-            ),
-            var.table =  all.covariates,
-            var.table.c = "all.covariates",
+        veg.mPERM.foraging <- group.PERMANOVA(
+            var.names = veg.group.vars,
+            var.table =  sample.covariates,
+            var.table.c = "sample.covariates",
             species.table = matrify.foraging,
             species.table.c = "matrify.foraging",
             num.control.vars = 1,
@@ -1025,16 +875,15 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         )
 
         ## Tree cluster name is significant. beta dispersion is not!
-        ## (somehow now veg class is not. idk.)
+        ## Shrubs not significant
 
-        ## Socio-economic neighborhood variables...
+    ## Socio-economic neighborhood variables...
 
-
-        PERMANOVA.foraging.neighborhood <-
+        neighborhood.mPERM.foraging <-
             group.PERMANOVA(
                 var.names = neighborhood.vars,
-                var.table =  all.covariates,
-                var.table.c = "all.covariates",
+                var.table =  sample.covariates,
+                var.table.c = "sample.covariates",
                 species.table = matrify.foraging,
                 species.table.c = "matrify.foraging",
                 num.control.vars = 1,
@@ -1044,14 +893,13 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         ## none significant before or after adjustment. SMV is the only one that is close (.07)
 
 
-        ## Landscaping and maintenance variables
+    ## Landscaping and maintenance variables
 
-
-        PERMANOVA.foraging.mangt.land <-
+        mngmt.mPERM.foraging <-
             group.PERMANOVA(
-                var.names = mngmt.land.vars,
-                var.table =  all.covariates,
-                var.table.c = "all.covariates",
+                var.names = management.vars,
+                var.table =  sample.covariates,
+                var.table.c = "sample.covariates",
                 species.table = matrify.foraging,
                 species.table.c = "matrify.foraging",
                 num.control.vars = 1,
@@ -1059,99 +907,65 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
                 by.adonis2 = "terms"
             )
 
-        ## dead wood, median height, stands predating and tree conifer density are
-        ## all significant. So is shrub effective species richness and
-        ## impervious surface. shrub density
+        ## native conifer density, dead wood abundance, median dom conif height,
+        ## impervious, native shurb density, native shrub esr, stands predating
+        ## development, native tree density. Native tree esr borderline.
 
-        # only significant difference is that for foraging birds vegetation
-        # class is also significant. Doesn't make sense to include both in
-        # models though...
+        ## Same as all birds. 
 
+        
+        
+        pretty.all.mPERM.foraging <- rbind(
+            detection.mPERM.foraging,
+            neighborhood.mPERM.foraging,
+            mngmt.mPERM.foraging,
+            veg.mPERM.foraging
+        )[, c(1, 3, 4, 5, 10)]
+        colnames(pretty.all.mPERM.foraging) <-
+            c("Variable", "Variation Explained per df", "pseudo-_F_", "_p_-value", "AICc")
+        
+        sig.mPERM.foraging <- pretty.all.mPERM.foraging[ pretty.all.mPERM.foraging$`_p_-value` < 0.05, ]
+        
 
-        ## AICc comparison (foraging):
+    ## AICc comparison (foraging):
 
-        ## Overall, seven significant variables: tree group, veg group,
-        ## median height, stands predating, native conifer density,
-        ## impervious surface and shrub esr.
-
-        sig.foraging.vars.PERMANOVA <- c(
-            "all.covariates$tree.cluster.name",
-            "all.covariates$stand.predate.development",
-            "all.covariates$tree.conifer.nat.dens",
-            "all.covariates$height.m.median",
-            "all.covariates$impervious.sqft",
-            "all.covariates$shrub.esr",
-            "all.covariates$dead.wood",
-            "all.covariates$shrub.nat.dens"
-        )
-
-        foraging.AICc.tab <-
+        multi.mPERM.foraging <-
             AICc.table.all(
-                sig.vars = sig.foraging.vars.PERMANOVA,
+                sig.vars = paste0("sample.covariates$",sig.mPERM.foraging$Variable[-1]),
                 matrix.char = "matrify.foraging",
                 comb.incl = 1:5,
-                extra.var = TRUE,
-                control.var.char = "all.covariates$clouds.76.100.proportion",
-                extra.var.char = "all.covariates$MedianHouseholdIncome_B19013e1"
+                extra.var = TRUE, 
+                perm = perm,
+                control.var.char = "sample.covariates$clouds.76.100.proportion",
+                extra.var.char = "sample.covariates$MedianHouseholdIncome_B19013e1"
             )
-
-
-
-
+        
+        multi.mPERM.foraging.AICc.weights.byvar <- AICc.weights.byvar(
+            sig.vars = paste0("sample.covariates$",sig.mPERM.foraging$Variable[-1]),
+            multi.mPERM.foraging
+        )
 
 
         ## Create a pretty table: Model (name), Delta AICc, Pseudo-F, p-value
 
-        pretty.foraging.AICc <-
-            foraging.AICc.tab[c(which(foraging.AICc.tab$`Delta AICc` <= 2),
-                                1,
-                                (nrow(foraging.AICc.tab))),]
+        pretty.AICc.mPERM.foraging <-
+            multi.mPERM.foraging[c(1, which(multi.mPERM.foraging$`Delta AICc` <= 2))
+                                ,]
 
-        pretty.foraging.AICc$Model <- c(
-            "Overcast and Stand Predates Development",
-            "Overcast and Native Conifer Density",
-            "Overcast and Median DF Height (m)",
-            "Overcast, Tree Community Cluster, and Median DF Height",
-            "Overcast, Stand Predates Development, and Median DF Height",
-            "Overcast, Median DF Height, and Native Shrub Effective Richness",
-
-            "Overcast, Median DF Height, and Dead Wood Abundance",
+        
+        pretty.AICc.mPERM.foraging$Model <- c(
             "Overcast",
-            "Overcast and Socio-economic Variables (Median HH Income, $)"
+            "Overcast + Native Conifer Density",
+            "Overcast + Median Dom. Conif. Height (m)",
+            "Overcast + Stand Predates Development",
+            "Overcast + Non-native Tree Density",
+            "Overcast + Median Dom. Conif. Height + Dead Wood Abundance",
+            "Overcast + Median Dom. Conif. Height + Native Shrub Effective Richness",
+            "Overcast + Median Dom. Conif. Height + Stand Predates Development",
+            "Overcast + Median Dom. Conif. Height + Non-native Tree Density",
+            "Overcast + Median Dom. Conif. Height + Tree Community Type"
         )
 
-
-
-        pretty.foraging.AICc <-
-            pretty.foraging.AICc[, c(6, 2, 7, 8, 3:5)]
-        pretty.foraging.AICc[-1] <-
-            round(pretty.foraging.AICc[-1], 3)
-
-        # end <- nrow(pretty.foraging.AICc)
-        #
-        # pretty.foraging.AICc[-1] <-
-        #     round(pretty.foraging.AICc[-1], 4)
-        # pretty.foraging.AICc$`Delta AICc`[end] <-
-        #     paste0("> ",
-        #            pretty.foraging.AICc$`Delta AICc`[end])
-        # pretty.foraging.AICc$`Pseudo-_F_`[end] <-
-        #     paste0("< ",
-        #            pretty.foraging.AICc$`Pseudo-_F_`[end])
-        # pretty.foraging.AICc$`Adjusted p-value` <- p.adjust(pretty.foraging.AICc$`p-value`,
-        #                                                             method = "holm")
-        # pretty.foraging.AICc$`Adjusted p-value`[end] <-
-        #     paste0("> ",
-        #            pretty.foraging.AICc$`Adjusted p-value`[end])
-        #
-        #
-        #
-        # pretty.foraging.AICc$`p-value`[end] <- paste0("> ",
-        #                                               pretty.foraging.AICc$`p-value`[end])
-        # pretty.foraging.AICc$`Relative Likelihood`[end] <-
-        #     paste0("< ",
-        #            pretty.foraging.AICc$`Relative Likelihood`[end])
-        #
-        #
 
 
 
@@ -1159,10 +973,10 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
 
 ## -- NMDS VISUALIZATIONS ------------------------------------------------------------------
 
-        # All birds
+    # All birds
 
         incidence.NMDS <- metaMDS(
-            comm = matrify.incidence.clean,
+            comm = matrify.incidence_0.clean,
             distance = "bray",
             k = 2,
             trymax = 9999,
@@ -1171,7 +985,7 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
 
         for (i in 1:100) {
             incidence.NMDS <- metaMDS(
-                comm = matrify.incidence.clean,
+                comm = matrify.incidence_0.clean,
                 distance = "bray",
                 k = 2,
                 trymax = 9999,
@@ -1180,14 +994,13 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
             )           # subsequent runs
         }
 
-        plot(incidence.NMDS, display = "sites")
+        plot(incidence.NMDS)
         plot(goodness(incidence.NMDS))
         stressplot(incidence.NMDS)
 
-        #incidence.NMDS$species
 
 
-        # Foraging birds
+    # Foraging birds
 
         foraging.NMDS <- metaMDS(
             comm = matrify.foraging,
@@ -1211,42 +1024,301 @@ plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
         plot(goodness(foraging.NMDS))
         stressplot(foraging.NMDS)
 
+        
+## -- CORRELATION INDEX / INDICATOR SPECIES ---------------------------------------------
+        
+        ## Point biserial correlation coeff.
+        
+        tree.cluster.pbiserial <-
+            repeat.multipatt(
+                matrix.name = matrify.incidence_0.clean,
+                phi = FALSE,
+                func.name = "r.g",
+                cluster.name = sample.covariates$tree.cluster.name,
+                plot.please = FALSE,
+                quiet = FALSE,
+                freq.cutoff = .5,
+                stat.cutoff = .5
+            )
+        
+        tree.cluster.pbiserial$clust.type <- "Tree"
+        tree.cluster.pbiserial <-
+            tree.cluster.pbiserial[order(tree.cluster.pbiserial$mean.stat, decreasing = TRUE), ]
+        
+        ## Cluster 1 associated with a whole host of 'forest' species. More
+        ## things show up here, probably due to the fact that more information
+        ## is held in the incidence matrix rather than the presence/absence
+        ## matrix.
+        
+        shrub.cluster.pbiserial <-
+            repeat.multipatt(
+                matrix.name = matrify.incidence_0.clean,
+                phi = FALSE,
+                func.name = "r.g",
+                cluster.name = sample.covariates$shrub.cluster.name,
+                plot.please = FALSE,
+                stat.cutoff = .5,
+                freq.cutoff = .5,
+                quiet = FALSE
+            )
+        
+        shrub.cluster.pbiserial$clust.type <- "Shrub"
+        shrub.cluster.pbiserial <-
+            shrub.cluster.pbiserial[order(shrub.cluster.pbiserial$mean.stat,
+                                          decreasing = TRUE), ]
+        
+        ## Appears to be some change in multipatt algorithm--AMCR & TOWA aren't
+        ## showing up now. 
+        
+        ## Bird species show up for both groups now. American Crow associated
+        ## with Cluster 1 (ornamental) and Northern FLicker and Townsends
+        ## Warbler for Cluster 2 (Native). For birds that show up in both
+        ## analyses, the results are similar (e.g. TOWA for shrub cluster is .51
+        ## vs .54 with essentially identical frequency)
+        
+        ## The point biserial can also take negative values, which
+        ## indicates that a species 'avoids' a specific area. With only two
+        ## sites, this is the -value of the stat value
+        
+        pretty.pbiserial <- rbind(tree.cluster.pbiserial, shrub.cluster.pbiserial)
+        pretty.pbiserial <- left_join(pretty.pbiserial, bird.guilds,  by = c("species" = "species.name"))
+        pretty.pbiserial <- left_join(pretty.pbiserial, bird.species.names, by = c("species" = "common.name"))
+        
+        pretty.pbiserial$pval.range <- paste0(pretty.pbiserial$min.p.val, "-", pretty.pbiserial$max.p.val)
+        pretty.pbiserial$foraging.substrate <- ifelse(pretty.pbiserial$foraging.substrate == "trees.shrubs",
+                                                      "Trees & Shrubs",
+                                                      "Ground")
+        pretty.pbiserial$forest.preference <- ifelse(pretty.pbiserial$forest.preference == "conifer",
+                                                     "Conifer",
+                                                     "Open or No Preference")
+        
+        colnames(pretty.pbiserial) <- c("species", "Times Significant (out of 100)","Frequency Significant",
+                                        "Mean Statistic", "group","Minimum p-value","Maximum p-value",
+                                        "All p-values", "Community Type", "Vegetation Type", "Diet", "Foraging Substrate",
+                                        "Forest Preference", "Scientific Name", "Bird Species", "p-value Range")
+        
+        
+        
+        ## Repeat for foraging birds.
+        
+        ## Point biserial correlation coeff.
+        
+        tree.cluster.pbiserial.foraging <-
+            repeat.multipatt(
+                matrix.name = matrify.foraging,
+                phi = FALSE,
+                func.name = "r.g",
+                cluster.name = sample.covariates$tree.cluster.name,
+                plot.please = FALSE,
+                freq.cutoff = .5,
+                stat.cutoff = .5,
+                quiet = FALSE
+            )
+        tree.cluster.pbiserial.foraging$clust.type <- "Tree"
+        tree.cluster.pbiserial.foraging <- tree.cluster.pbiserial.foraging[
+            order(tree.cluster.pbiserial.foraging$groupname,
+                  tree.cluster.pbiserial.foraging$mean.stat,
+                  decreasing = TRUE),]
+        
+        ## Cluster 1 associated with a whole host of 'forest' species. Crows show up
+        ## in the Ornamental clusters
+        
+        shrub.cluster.pbiserial.foraging <-
+            repeat.multipatt(
+                matrix.name = matrify.foraging,
+                phi = FALSE,
+                func.name = "r.g",
+                cluster.name = sample.covariates$shrub.cluster.name,
+                plot.please = FALSE,
+                stat.cutoff = .5,
+                freq.cutoff = .5,
+                quiet = FALSE
+            )
+        # shrub.cluster.pbiserial.foraging$clust.type <- "Shrub"
+        # shrub.cluster.pbiserial.foraging <- shrub.cluster.pbiserial.foraging[
+        #                                         order(shrub.cluster.pbiserial.foraging$mean.stat,
+        #                                                                            decreasing = TRUE),]
+        
+        ## Crow shows up again associated with Ornamental. Townsends shows up again
+        ## for native, along with anna's hummingbird. They're territorial so not
+        ## 100% sure how much is them claiming good habitat vs. nearby.
+        
+        ## Again the shrub results have changed. Not sure why.
+        
+        # Make a pretty table for foraging birds.
+        
+        # pretty.pbiserial.foraging <-
+        #     rbind(tree.cluster.pbiserial.foraging,
+        #           shrub.cluster.pbiserial.foraging)
+        pretty.pbiserial.foraging <- tree.cluster.pbiserial.foraging
+        pretty.pbiserial.foraging <-
+            left_join(pretty.pbiserial.foraging,
+                      bird.guilds,
+                      by = c("species" = "species.name"))
+        pretty.pbiserial.foraging <- left_join(pretty.pbiserial.foraging, bird.species.names, by = c("species" = "common.name"))
+        
+        pretty.pbiserial.foraging$pval.range <-
+            paste0(pretty.pbiserial.foraging$min.p.val,
+                   "-",
+                   pretty.pbiserial.foraging$max.p.val)
+        
+        pretty.pbiserial.foraging$foraging.substrate <-
+            ifelse(
+                pretty.pbiserial.foraging$foraging.substrate == "trees.shrubs",
+                
+                "Trees & Shrubs",
+                "Ground"
+            )
+        pretty.pbiserial.foraging$forest.preference <-
+            ifelse(
+                pretty.pbiserial.foraging$forest.preference == "conifer",
+                "Conifer",
+                "Open or No Preference"
+            )
+        pretty.pbiserial.foraging$diet <-
+            ifelse(
+                pretty.pbiserial.foraging$diet == "omnivore",
+                "Omnivore",
+                "Insectivore"
+            )
+        
+        colnames(pretty.pbiserial.foraging) <-
+            c("species", "Times Significant (out of 100)","Frequency Significant",
+              "Mean Statistic", "group", "Minimum p-value", "Maximum p-value",
+              "All p-values", "Community Type", "Vegetation Type", "Diet", "Foraging Substrate",
+              "Forest Preference", "Scientific Name", "Bird Species", "p-value Range")
+
+        
+        plot(sample.covariates$MedianHouseholdIncome_B19013e1, matrify.incidence$brown.creeper)
+        plot(sample.covariates$landrentperacre, matrify.incidence$brown.creeper)
+        plot(sample.covariates$impervious.sqft, matrify.incidence$brown.creeper)
+        plot(sample.covariates$conifer.nat.abundance, matrify.incidence$brown.creeper)
+        plot(sample.covariates$shrub.nat.dens, matrify.incidence$brown.creeper)
+        
+
+    # For stands of trees predating development:
+        
+        ## Point biserial correlation coeff.
+        
+        spd.cluster.pbiserial <-
+            repeat.multipatt(
+                matrix.name = matrify.incidence_0.clean,
+                phi = FALSE,
+                func.name = "r.g",
+                cluster.name = sample.covariates$stand.predate.development,
+                plot.please = FALSE,
+                quiet = FALSE,
+                freq.cutoff = .5,
+                stat.cutoff = .5
+            )
+        
+        spd.cluster.pbiserial$group <- ifelse(spd.cluster.pbiserial$group == "yes", "Yes, Stand Predates Development", "No")
+        spd.cluster.pbiserial <-
+            spd.cluster.pbiserial[order(spd.cluster.pbiserial$mean.stat, decreasing = TRUE), ]
+        
+        
+        
+        
+        
+        
 ## -- TITAN Analysis ------------------------------------------------------------
 
         matrify.incidence.titan <-
             matrify.incidence[, colSums(matrify.incidence > 0) > 3]
-
-        TITAN.inci.height <- titan(txa = matrify.incidence.titan,
-                                   env = all.covariates$height.m.median,
+        
+        TITAN.inci.clouds <- titan(txa = matrify.incidence.titan,
+                                   env = sample.covariates$clouds.76.100.proportion,
                                    pur.cut = .75, rel.cut = .75, ncpus = 2)
 
         TITAN.inci.tcnd <- titan(txa = matrify.incidence.titan,
-                                   env = all.covariates$tree.conifer.nat.dens,
+                                 env = sample.covariates$tree.nat.dens,
+                                 pur.cut = .75, rel.cut = .75, ncpus = 2)
+
+        TITAN.inci.deadw <- titan(txa = matrify.incidence.titan,
+                                  env = sample.covariates$dead.wood,
+                                  pur.cut = .75, rel.cut = .75, ncpus = 2)
+                
+        TITAN.inci.height <- titan(txa = matrify.incidence.titan,
+                                   env = sample.covariates$height.m.median,
                                    pur.cut = .75, rel.cut = .75, ncpus = 2)
 
         TITAN.inci.imp <- titan(txa = matrify.incidence.titan,
-                                   env = all.covariates$impervious.sqft,
+                                   env = sample.covariates$impervious.sqft,
                                    pur.cut = .75, rel.cut = .75, ncpus = 2)
-
-        TITAN.inci.clouds <- titan(txa = matrify.incidence.titan,
-                                   env = all.covariates$clouds.76.100.proportion,
-                                   pur.cut = .75, rel.cut = .75, ncpus = 2)
-
-        TITAN.inci.sesr <- titan(txa = matrify.incidence.titan,
-                                   env = all.covariates$shrub.esr,
-                                   pur.cut = .75, rel.cut = .75, ncpus = 2)
-
+        
         TITAN.inci.snd <- titan(txa = matrify.incidence.titan,
-                                   env = all.covariates$shrub.nat.dens,
+                                env = sample.covariates$shrub.nat.dens,
+                                pur.cut = .75, rel.cut = .75, ncpus = 2)
+        
+        TITAN.inci.sesr <- titan(txa = matrify.incidence.titan,
+                                   env = sample.covariates$shrub.nat.esr,
                                    pur.cut = .75, rel.cut = .75, ncpus = 2)
+        
+        TITAN.inci.tnd <- titan(txa = matrify.incidence.titan,
+                                env = sample.covariates$tree.nat.dens,
+                                pur.cut = .75, rel.cut = .75, ncpus = 2)
+        
+        TITAN.inci.tod <- titan(txa = matrify.incidence.titan,
+                                env = sample.covariates$tree.orn.dens,
+                                pur.cut = .75, rel.cut = .75, ncpus = 2)
+        
+    
+        plot_taxa(TITAN.inci.clouds, z2 = FALSE)
+        plot_taxa(TITAN.inci.tcnd)
+        plot_taxa(TITAN.inci.sesr, z1 = FALSE)
+        plot_taxa(TITAN.inci.deadw)
+        plot_taxa(TITAN.inci.height, z1 = FALSE)
+        plot_taxa(TITAN.inci.imp)
+        plot_taxa(TITAN.inci.snd)
+        plot_taxa(TITAN.inci.tnd)
+        plot_taxa(TITAN.inci.tod, z2 = FALSE)
+        
+        
+## --- PLOT setup ------------------------------------------
+        
+        
+        
+        #sig.uPERM.results$var.names
+        
+        theme_set(theme_sjplot())
+        
+        # clouds only
+        fit <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion)
+        
+        p.clouds <- plot_model(fit, type = "pred", terms = "clouds.76.100.proportion",
+                               show.data = TRUE)
+        
+        # Impervious surface
+        fit <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion + impervious.pct)
+        
+        p.impervious.pct <- plot_model(fit, type = "pred", terms = "impervious.pct", show.data = TRUE)
 
-        TITAN.inci.deadw <- titan(txa = matrify.incidence.titan,
-                                   env = all.covariates$dead.wood,
-                                   pur.cut = .75, rel.cut = .75, ncpus = 2)
-
-
+        
+        # native shrub esr
+        fit <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion + shrub.nat.esr)
+        
+        p.shrub.nat.esr <- plot_model(fit, type = "pred", terms = "shrub.nat.esr", show.data = TRUE)
+        
+        # native shrub density
+        fit <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion + shrub.nat.dens)
+        
+        p.shrub.nat.dens <- plot_model(fit, type = "pred", terms = "shrub.nat.dens",
+                                       show.data = TRUE)
+        
+        
+        # tree cluster name
+        fit <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion + tree.cluster.name)
+        
+        p.tree.cluster.name <- plot_model(fit, type = "pred", terms = "tree.cluster.name", show.data = TRUE)
+        
+        # shrub cluster name
+        fit <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion + shrub.cluster.name)
+        
+        p.shrub.cluster.name <- plot_model(fit, type = "pred", terms = "shrub.cluster.name", show.data = TRUE)
+        
+        remove(fit)
 
 ## -- Save everything... ----------------------------------------------------------
 
-save.image(file = paste0("../Birds/bird_data_analysis_complete_", date, ".RData"))
+save.image(file = paste0("bird_data_analysis_complete_", date, ".RData"))
 

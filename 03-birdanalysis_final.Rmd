@@ -19,21 +19,23 @@ all.current <- TRUE
 
 if (all.current == TRUE) {
 
-  load(file = "../Birds/bird_data_analysis_complete_11282018.RData")
+  load(file = "bird_data_analysis_complete_02272020.RData")
 
 }
 
 if (all.current == FALSE) {
-  # This takes a little while, but shouldn't be too long.
-  source("../Birds/bird_data_analysis.R")
+  # This takes a little while, maybe 15 min. depending on computer
+  source("bird_data_analysis.R")
   
 }
-  setwd("../DissertationBookdown/")
+
 
 ## Load required libraries
   library(ggplot2)
+  library(ggeffects)
   library(rgl)
   library(pander)
+  library(reshape2)
   library(gridExtra)
   library(ggrepel)
   library(tibble)
@@ -42,109 +44,94 @@ if (all.current == FALSE) {
   library(kableExtra)
   library(knitr)
   library(dplyr)
+  library(sjPlot)
 
 
   options(digits = 3)
 
+  
+# For outputting in latex; use \setstretch{1.05} for headings and \setstretch{1.65} for the main text. Also use: \chaptermark{Passerine community}; \widowpenalty10000; \clubpenalty10000; \raggedbottom
 
 ```
 
-\setstretch{1.05}
 
-# Bird community on office developments is explained by development and landscaping actions impacting vegetation communities
+# Conserving native trees increases native bird diversity and (shifts) community composition on office developments
 
-\setstretch{1.65}
+## Abstract---reduce to 250 words
 
-\chaptermark{Passerine community}
-\widowpenalty10000
-\clubpenalty10000
-\raggedbottom
+In cities, vegetation provides critical shelter, nesting, and foraging habitat for bird species of interest. Human actions---including development and landscaping choices---determine vegetation community composition and structure. 
+Thus, human actions impacting vegetation are critically important to bird conservation in cities. A better understanding of how bird communities are impacted by parcel-scale actions that alter vegetation communities can help guide policy and management best practices to improve matrix habitat quality and quantity.
+Here, I examined how bird habitat use varies along a vegetation gradient created by different development and landscaping choices. Where previous research focused on public green space and private residential property, I expand this research to 20 commercial office developments in King County, Washington, USA selected using stratified random sampling. 
+I quantified the bird communities and observed feeding behavior on office developments, collected data on tree, shrub, and ground cover communities, and gathered information about neighborhood scale socio-economic and land cover variables. 
+I found that all measures of the bird community are positively influenced by the presence of more native conifers, particularly old trees that are protected during development activities, and the presence of native shrubs. Measures of the bird community are negatively influenced by higher non-native tree density.
+In contrast to prior research, top-down neighborhood-scale variables did not explain variation in any measures of the bird community on office developments. Importantly, I found that birds are associated with the same habitat on office developments as observed elsewhere. Together, my findings suggest an important role for developers, land owners, landscape architects, and tree protection policy in bird conservation.
 
+## Introduction
 
-## Introduction {#CH3-introduction}
+Vegetation is a critical component of bird habitat; vegetation composition and structure are long-recognized predictors of species presence and diversity [@cody1981; @macarthur1961; @betts2013; @jones2012; @paker2014]. In cities, vegetation provides critical shelter, nesting, and foraging habitat for bird species of interest [@antikainen1992; @goldstein1986; @narango2017].
 
-Human actions including development, tree removal, creation of impervious surface, and landscaping choices influence vegetation communities in social-ecological systems [@faeth2011]. Habitat loss and degradation are primary drivers of extinction in anthropogenic habitat [@alberti2005; @polasky2005; @rosenzweig2003]. For conservation efforts to be successful in social-ecological systems, the habitat matrix in which preserves and remnant habitat are situated must provide sufficient resources for local species [@miller2002; @fahrig2001; @fischer2006; @polasky2005; @rosenzweig2003; @shoffner2018]. A better understanding of the relationship between bird communities and the habitat or vegetation outcomes of human action at the parcel-scale can help guide policy and management best practices to improve matrix habitat quality [@goddard2010; @miller2002]. 
+Human actions in urban areas including development and landscaping choices determine vegetation community composition and structure [@faeth2011; @grimm2017; @niinemets2008; @dyson2019veg]. Development actions are disturbances and include removing native vegetation and topsoil and compacting soil with heavy equipment. Landscaping actions partly replace succession processes and include choosing and planting tree and shrub species in specified proportions and locations [@grimm2017; @niinemets2008]. The resulting vegetation communities may differ in the proportion of native species and ornamental non-native species as well as tree canopy cover in historically forested areas [@dyson2019veg].
 
-How bird habitat use and vegetation association are impacted by development, landscaping, and management actions at the parcel-scale is one important aspect of this relationship. While human actions can control the community composition of flora, habitat selection in mobile fauna like birds results from a hierarchical processes of behavioral responses and differential habitat exploitation to increase survival [@mcgarigal2016; @hutto1985; @chalfoun2007; @faeth2011]. Habitat use is determined by species' habitat selection process and adaptability, the spatial layout of habitat in the landscape, habitat availability and quality, and the local species pool [@cody1985; @muller2013].
+Thus, the habitat available for birds in cities is almost entirely driven by human choices [@lepczyk2004; @muller2013; @vanheezik2012; @hamer2008; @nudds1977]. Habitat use is determined by species' habitat selection process and adaptability, the spatial layout of habitat in the landscape, habitat availability and quality, and the local species pool [@cody1985; @muller2013]. Sites with more native vegetation community composition are more likely to retain native bird species, as many native birds prefer to feed in native trees and shrubs [@paker2014; @chace2006; @belaire2014; @lepczyk2004; @chong2014; @pennington2011], though some are more adaptable and will readily use non-native ornamental vegetation [@belaire2014; @daniels2006]. Heterogenous plant layers are positively correlated with high bird diversity and native forest birds [@beissinger1982; @paker2014; @daniels2006; @chong2014; @smith2015; @cooke2002; @kroll2014; @cooke2002; @evans2009; @melles2003; @pennington2011]. Where vegetation structure is simplified, bird abundance is reduced, particularly for leaf-gleaning insectivores [@betts2013; @ellis2012]. Large lawns and monoculture woods without underbrush are favorable for alien bird species and urban exploiters [@paker2014; @smith2015]. One potential contributing factor to this pattern is that ground cover and increased vegetation structural complexity are frequently associated with increased abundance and diversity of arthropods [@frampton2000]. 
 
-Development actions are disturbances, and include removing vegetation and topsoil and compacting soil with heavy equipment, while landscaping actions partly replace succession processes and include choosing and planting tree and shrub species in specified proportions and locations [@grimm2017; @niinemets2008]. The resulting vegetation community composition and structure is an important component of bird habitat quality almost entirely driven by humans [@lepczyk2004; @muller2013; @vanheezik2012; @hamer2008; @nudds1977]. On office developments, this range in habitats is broad, including both properties with few ornamental non-native deciduous trees planted after development and those with second growth native conifer forests preserved through development [@dysonveg2019]. Previous research suggests that bird habitat use is  variably influenced by the resulting vegetation community composition. Native birds frequently prefer to feed in native trees and foliage, and sites with native plantings are more likely to retain native bird species [@paker2014; @chace2006; @belaire2014; @lepczyk2004; @chong2014; @pennington2011]. However, some native bird species are more adaptable and will readily use non-native ornamental vegetation [@belaire2014; @daniels2006]. 
+Habitat loss and degradation are primary drivers of extinction in anthropogenic habitat [@alberti2005; @polasky2005; @rosenzweig2003]. Successful conservation likely requires the urban habitat (vegetation) matrix to provide enough resources for local species in addition to habitat preservation [@miller2002; @fahrig2001; @fischer2006; @polasky2005; @rosenzweig2003; @shoffner2018]. Acting to alter urban vegetation communities can positively impact bird species richness and assemblages [@threlfall2016]. A better understanding of how bird communities are impacted by human actions at the parcel-scale that alter vegetation communities can help guide policy and management best practices to improve matrix habitat quality and quantity. [@goddard2010; @miller2002]. Native birds are of conservation interest to ecologists & concerned citizens [@belcher2019]. In the Puget Sound region of Washington, these include species of concern including Red-breasted Sapsucker, Pileated Woodpecker and Evening Grosbeak, as well as charismatic birds associated with native conifers including Chestnut-backed Chickadee, Golden-crowned Kinglet, Brown Creeper, and Varied Thrush.
 
-In addition to community composition, the structure of plantings is also important [@macarthur1961; @betts2013; @jones2012; @paker2014]. Bird abundance, and particularly the abundance of leaf-gleaning insectivorous species, is reduced in forest stands where vegetation structure is artificially simplified [@betts2013; @ellis2012]. Heterogenous plant layers are positively correlated with high bird diversity and native forest birds [@beissinger1982; @paker2014; @daniels2006; @chong2014; @smith2015; @cooke2002; @kroll2014; @cooke2002; @evans2009; @melles2003; @pennington2011]. Large lawns and monoculture woods without underbrush are favorable for alien bird species and urban exploiters [@paker2014; @smith2015]. One potential contributing factor to this pattern is that ground cover and increased vegetation structural complexity are frequently associated with increased abundance and diversity of arthropods [@frampton2000]. 
+Here, I examined how bird habitat use varies along a vegetation gradient created by different development and landscaping choices [@dyson2019veg]. Where previous research has focused on understanding this relationship for public green space [e.g. @antikainen1992; @threlfall2016] or private residential property [e.g. @daniels2006; @narango2017; @goddard2010], I expand this research to commercial office developments.
 
-Management actions, including cleanup actions, fertilization and irrigation, and pesticide application can also affect bird habitat use and bird populations in social-ecological systems. Cleanup removes dead wood and other organic matter that may function as refugia and important habitat structures [@linden2013; @hallett2001; @kroll2012]. Birds that are dependent on snags for nesting, roosting, and foraging are unsurprisingly more abundant when these structures are present [@linden2013; @walter2005; @kroll2014; @melles2003; @sandstrom2006]. Nutrient addition through fertilization negatively influences bird species richness [@solomou2014] and may alter bird habitat through changes in primary productivity, vegetation structure (habitat), and food supply i.e. invertebrate abundance [@lepczyk2004]. Irrigation may increase food abundance and cover availability and drive change in bird species composition [@frampton2000; @schleder2010; @defrutos2015]. In urban contexts, higher diversity and abundance is associated with more heavily irrigated land uses, including mesic residential yards in desert ecosystems [@cook2006]. Irrigated urban land uses also have higher vegetation biomass and system productivity, which may drive changes in arthropod communities [@shochat2004; @cook2006; @kirchner1977; @frampton2000]. Pesticides, including insecticides and herbicides, may impact bird populations through direct impacts (toxicity) and indirect impacts including changes in food supply and habitat [@carson1962; @henny1972; @lepczyk2004; @mineau2013; @fry1995; @gibbons2015; @burghardt2009; @hanberry2012; @geiger2010].
+I hypothesized that the species richness and community composition of birds found on office developments, as well as the community of foraging birds, would be explained by variables describing the outcome human actions impacting vegetation at the parcel-scale [@belaire2014; @galitsky2015; @daniels2006]. Based on previous research, I also hypothesized that bird communities would be explained by top-down neighborhood-scale socio-economic and land cover variables found significant in studies of residential land use types, including median household income [@lerman2011; @luck2013; @melles2003; @schutz2015; @beumer2015; @vanheezik2013]. Previous research suggests that for birds in the Puget Trough local factors were twice as important as landscape patterns for frugivores, seed eaters, ground foragers, and bark foragers [@galitsky2015]. Therefore, I also hypothesized that parcel-scale variables would be more important in explaining variation in bird communities than neighborhood-scale variables. A local understanding of the relative influence these factors in determining habitat use by birds is an important consideration for urban bird conservation planning and success [@kinzig2005]. 
 
-However, this previous research frequently focuses on broad neighborhood-scale vegetation patterns instead of the outcome of development, landscaping, and management actions at the parcel-scale. For example, measures of vegetation at a broad scale in bird studies include aggregate vegetation cover and distance between study site and native habitat fragments [@villegas2010]. Vegetation is sometimes quantified indirectly as a function of urban form via urban gradients rather than as a result of developer and property owner actions like tree retention or landscaping [@ramalho2012]. Additionally, researchers frequently conflate multiple management regimes on different parcels by aggregating vegetation information within a buffer around a point count [@lerman2011; @loss2009; @clergeau1998]. 
+To address these questions, I quantified the bird communities and observed feeding behavior on office developments, collected data on tree, shrub, and ground cover communities, and gathered information about neighborhood scale socio-economic and land cover variables.
+I surveyed winter bird communities as they are less well studied than breeding bird communities [@jokimaki2003] and resources obtained during the winter season are critical for survival and impact body condition for migration and reproduction [@faaborg2010; @manuwal1987; @devries2008; @marra1998]. 
 
-Results from studies using more aggregation can be difficult to interpret ecologically [@mcdonnell2008; @ramalho2012], and results are of limited use to improve urban biodiversity outcomes through changes in human action [@mcdonnell2013; @ramalho2012]. Studies examining residential parcel-scale decisions and actions find that managed vegetation structure is an important predictor of vertebrate abundance and diversity [@goddard2010; @daniels2006]. These studies provide important management information including specific actions for homeowners to take. 
-
-Here, I expand this research to commercial property. I address three questions concerning bird community composition and foraging on office developments:
-
-1. Which bird species exhibit habitat associations with Native or Ornamental tree and shrub community typologies observed on office developments?
-2. What variables describing socio-economic or land cover patterns or variables describing the outcome of development, landscaping, or maintenance actions explain variation in bird effective species richness or bird guild richness?
-3. What variables describing socio-economic or land cover patterns or variables describing the outcome of development, landscaping, or maintenance actions explain variation in bird community composition and foraging bird community composition?
-
-As highly mobile species sensitive to variation in vegetation, birds have been used as indicators of biodiversity globally and in urban ecosystems, and patterns of bird habitat use may provide information on the resources available to other trophic levels at an office development [@croci2008; @butchart2010; @blair1999]. Birds are also charismatic, and provide cultural ecosystem services important to large numbers of citizens [@collins2011; @whelan2015; @white2018]. These characteristics make them an ideal study species to examine the impacts of human development, landscaping, and management actions determining vegetation at the parcel-scale on higher trophic organisms.
-
-I compared vegetation communities on office developments with the community composition of birds and the subset of birds engaged foraging behavior (foraging birds) observed on each site during the winter. Winter bird communities are less well studied than breeding bird communities [@jokimaki2003]. Resources obtained during the winter season are critical for survival and impact body condition for migration and reproduction. Thus, the winter season may help shape resident (year-round) bird communities and contribute significantly to population dynamics [@faaborg2010; @manuwal1987; @devries2008; @marra1998]. Bird species' diets are frequently relaxed in the winter, which suggests opportunities for urban vegetation to provide birds with critical food resources [@bnao; @faaborg2010].  
-
-I quantified the bird communities and observed feeding behavior on office developments, collected data on tree, shrub, and ground cover communities, gathered information about parcel- and neighborhood-scale socio-economic and land cover variables, and quantified parcel-scale outcomes of development, landscaping, and management actions. This focus on action outcomes allows me to make development and landscaping suggestions, however developer and land owner motivation is not addressed. I used cluster analysis, regression, and multivariate ecology tools including PERMANOVA to quantify the relationship between bird communities and independent variables.
-
-I hypothesized that bird species on commercial property are associated with the same habitat as observed in non-urban systems [@bnao], and that univariate (effective species richness) and multivariate (community composition) analyses would reveal different patterns. Based on previous research, I hypothesized that top-down neighborhood-scale socio-economic and land cover variables found significant in studies of residential land use types, including median household income, would be significant in explaining variation in effective species richness and community structure [@lerman2011; @luck2013; @melles2003; @schutz2015; @beumer2015; @vanheezik2013]. I also hypothesized that variables describing the outcome of development, landscaping, and management actions impacting vegetation on site would also be significant in explaining variation in the bird community [@belaire2014; @galitsky2015; @daniels2006]. The relative importance of neighborhood-scale "top-down" variables emerging from diffuse decisions in social-ecological systems and parcel-scale "bottom-up" variables resulting from parcel-level decision making varies by location and taxonomic group [@kinzig2005; @belaire2014; @daniels2006; @galitsky2015]. Previous research suggests that for birds in the Puget Trough local factors were twice as important as landscape patterns for frugivores, seed eaters, ground foragers, and bark foragers [@galitsky2015]. Therefore I also hypothesized that parcel-scale variables would be more important in explaining variation in bird communities than neighborhood-scale variables. A local understanding of the relative influence these factors in determining habitat use by birds is an important consideration for urban bird conservation planning and success [@kinzig2005]. 
-
-Broadly, I found that birds are associated with the same habitat on office developments as observed elsewhere. I also found that parcel-scale variables are more important in explaining variation in bird communities than neighborhood-scale variables. Both bird effective species richness and bird community composition on office developments are influenced by parcel-scale development and landscaping actions, including the age and density of native trees and the density of native shrubs on a parcel. These findings suggest an important role for developers, land owners, landscape architects, and tree protection policy in bird conservation, and a need for additional research examining how land use policy is implemented at the parcel-scale, what factors influence developer and landowner actions, and how to best incentivize actions like native conifer preservation associated with more diverse winter bird communities.
+I found that all measures of the bird community are positively influenced by the presence of more native conifers, particularly old trees that are protected during development activities, and the presence of native shrubs. Measures of the bird community are negatively influenced by higher non-native tree density. In contrast to prior research, top-down neighborhood-scale variables did not explain variation in any measures of the bird community on office developments. Importantly, I found that birds are associated with the same habitat on office developments as observed elsewhere. Together, my findings suggest an important role for developers, land owners, landscape architects, and tree protection policy in bird conservation, and a need for additional research examining how land use policy is implemented at the parcel-scale, what factors influence developer and landowner actions, and how to best incentivize actions like native conifer preservation associated with more diverse winter bird communities.
 
 
-```{r bird-conceptual-diagram, fig.cap='(ref:birdconceptual)', out.width='75%'}
-
-	knitr::include_graphics("images/BirdVariables2.png", auto_pdf = TRUE)
-
-
-```
-
-(ref:birdconceptual) An overview of the relationships between measured variables and the bird community present at a site. When a site is developed, the developer’s actions determine whether stands of trees are preserved through development, as well as the preserved conifer density, the initial planting design, and the year built. These variables are further modified by the land management actions, including herbicide/pesticide/etc. applications, dead wood removal, and plant replacement. These variables may influence bird community composition in two ways. First, the resulting vegetation on the site influences habitat available to birds. Second, a subset of these variables---such as the socio-economic variables and impervious surfaces---may influence the surrounding bird community and therefore limit the bird community at the neighborhood-scale.
-
-
-## Methods {#CH3-methods}
+## Methods
 
 ### Study area
 
-Redmond (2017 population 64,000) and Bellevue (population 144,000) are located east of Seattle in King County, Washington in the Puget Trough region [@Census2017]. This temperate lowlands region lies between the Cascades and Puget Sound, with post glaciation conifer-dominated forests of Douglas-fir, western red cedar, and western hemlock (_Pseudotsuga menziesii_, _Thuja plicata_, and _Tsuga heterophylla_). Both cities share a similar ecological history including glaciation ending 10,000 years ago, a similar disturbance timeline for logging and agriculture, and have grown considerably since the opening of the Evergreen Point Floating Bridge (SR 520) in 1963. They are at similar elevations (< 500 ft) and experience the same climate and weather. The two cities are approximately 20 miles from the foothills of the Cascades, and 30 miles from forested mountains > 4,000 ft elevation. Two large lakes, Lake Washington and Lake Sammamish, are adjacent to city borders.
+Bellevue (2017 population 144,000) and Redmond (population 64,000) are located east of Seattle in King County, Washington in the Puget Trough region [@Census2017]. This temperate lowlands region lies between the Cascades and Puget Sound, with post glaciation conifer-dominated forests of Douglas-fir, western red cedar, and western hemlock (_Pseudotsuga menziesii_, _Thuja plicata_, and _Tsuga heterophylla_). Both cities share a similar ecological history including glaciation ending 10,000 years ago, a similar disturbance timeline for logging and agriculture, and have grown considerably since the opening of the Evergreen Point Floating Bridge (SR 520) in 1963. They are at similar elevations (< 500 ft) and experience the same climate and weather. The two cities are approximately 20 miles from the foothills of the Cascades, and 30 miles from forested mountains > 4,000 ft elevation. Two large lakes, Lake Washington and Lake Sammamish, are adjacent to city borders (Figure 1).
 
-Study sites were selected using disproportionate stratified random sampling across five vegetation strata to ensure that my sample included sites across the entire vegetation gradient [@dysonveg2019]. The sampling frame was limited to Redmond and Bellevue north of I-90 and excluded developments in Bellevue’s central business district. To avoid confounding factors, I restricted the sampling pool to sites in the 25^th^ to 85^th^ percentile for size and the 15^th^ to 85^th^ percentile for surrounding impervious surfaces.
+```{r map}
 
-I sent three rounds of mailings to the property owner or manager on file in the King County Assessor's database published October 9th, 2014, requesting access to their property [@dyson2018]. Twenty of the 46 requests sent were accepted, 6 requests were rejected, and 20 received no response or were not deliverable. My final sample included 3-5 sites from each of the five vegetation strata, with `r length(which(all.covariates$DistrictName == "BELLEVUE")) ` sites were located in Bellevue and `r length(which(all.covariates$DistrictName == "REDMOND")) ` of the study sites were located in Redmond. The study sites ranged from `r round(min(all.covariates$acres), 3)` acres to `r round(max(all.covariates$acres), 3)` acres in size. The office developments on study sites were built between 1975 and 2008. Commercial use of the sites included light industrial, white collar office space, medical/dental offices. Some sites were fully leased to tenants, while others were either partly or fully owner-occupied. Company size ranged from one to many thousand employees.
+# Create map here.
+
+```
+
+To sample the entire vegetation gradient, I used a disproportionate stratified random sampling approach [more detail see @dyson2019veg]. To avoid confounding factors, I restricted the sampling pool to sites in the 25^th^ to 85^th^ percentile for size and the 15^th^ to 85^th^ percentile for surrounding impervious surfaces. I also limited the sampling frame to exclude high-rise buildings in Bellevue's central business district and properties south of I-90.
+
+I requested property access by sending three rounds of mailings to the property owner or manager on file [@dyson2019private; @dyson2019veg]. Twenty of the 46 requests sent were accepted, 6 requests were rejected, and 20 received no response or were not deliverable. My sample included 3-5 sites from each of the five vegetation strata, with `r length(which(all.covariates$DistrictName == "BELLEVUE")) ` sites in Bellevue and `r length(which(all.covariates$DistrictName == "REDMOND")) ` of the study sites in Redmond. The study sites ranged from `r round(min(all.covariates$acres), 3)` acres to `r round(max(all.covariates$acres), 3)` acres. The office developments on study sites were built between 1975 and 2008, with some fully leased to tenants and other partly or fully owner-occupied. Commercial use of the sites included light industrial, office space, and medical/dental offices. Company size ranged from one employee to tens of thousands.
 
 ### Bird surveys
 
-I conducted bird surveys between December 12^th^ 2014 and March 1^st^ 2015 and between December 11^th^ 2015 and February 27^th^ 2016. Sampling occurred on days when wind speed was less than 10 mph and rainfall was less than 0.1''. I delayed sampling when there was thick fog in the early morning, however light rain and fog are normal winter conditions. I conducted 40 days of sampling per year comprising four rounds of surveys for each of 20 sites to reduce winter weather bias and characterize bird communities [@marzluff2016causal]. Two sites were visited per day. Sweeps at the first site began at sunrise (approx. 8:00 AM) and sweeps at the second site finished between 10:00AM and 1:00PM due to the variable sampling length and between site transit times. Site visit order was randomized for each round of surveys, and were visited in this order except when scheduling conflicts arose with the property owner or manager. While these scheduling constraints may introduce bias, they are an unavoidable when working on private property [@dyson2018]. 
+I sampled birds 4 times at each of the 20 sites for two seasons; winter season sampling occured between December 12^th^ 2014 and March 1^st^ 2015 and between December 11^th^ 2015 and February 27^th^ 2016. Site visit order was randomized for each of the 4 rounds of surveys, except when scheduling conflicts arose with the property owner or manager. While these scheduling constraints may introduce bias, they are an unavoidable when working on private property [@dyson2019private]. Sampling occurred on days when wind speed was less than 10 mph and rainfall was less than 0.1''. Repeated sampling helped reduce winter weather bias; while I delayed sampling when there was thick fog, light rain and fog are normal winter weather conditions for the region [@marzluff2016causal]. 
 
-Birds were surveyed using the standardized search method [@watson2003]. The standardized search method allows for comparison of heterogeneous study sites, retains the parcel as the unit of analysis instead of changing it to the point count circle, and is compatible with the geometry of parcels [@dysonveg2019; @watson2003]. The method encourages observer movement, which allowed for detection of cryptic winter species, observation of bird behavior and foraging activity, and repositioning to mitigate the impacts of urban noise. Pilot data collected using both point count and standardized search methodology confirmed the superiority of the standardized search methodology in detecting birds (Dyson, unpublished data). 
+I used the standardized search method, which allows for comparison of heterogeneous study sites, retains the parcel as the unit of analysis instead of changing it to the point count circle, and is compatible with the geometry of parcels [@dyson2019veg; @watson2003]. The method also encourages observer movement, which allowed for detection of cryptic winter species, observation of bird behavior and foraging activity, and repositioning to mitigate the impacts of urban noise. Pilot data collected using both point count and standardized search methodology confirmed the superiority of the standardized search methodology in detecting winter birds (Supplemental Table 1). 
 
-During each site visit, 20-minute sweeps were conducted consecutively until the stopping rule was met, here no new species observed in the sweep. This resulted in `r min(bird.by.visit.PA.info$number.visit.sweeps) `--`r max(bird.by.visit.PA.info$number.visit.sweeps) ` sweeps per visit with a median of `r median(bird.by.visit.PA.info$number.visit.sweeps) ` sweeps per visit. I recorded each bird species along with detection method, whether birds were foraging, and location on site. Foraging activities required visual confirmation except for woodpeckers. I did not estimate abundance or record birds flying overhead, water dependent birds, or raptors, following @melles2003 and @jokimaki1998. Each sweep was recorded using an Olympus WS-822 digital voice recorder. Recordings were used to confirm identifications made in the field and perform quality checks by Bob Sundstrom and myself.
+I visited two sites per day. Sweeps at the first site began at sunrise (approx. 8:00 AM) and sweeps at the second site finished between 10:00AM and 1:00PM due to the variable sampling length and between site transit times. During each site visit, 20-minute sweeps were conducted consecutively until no new species observed in the sweep. This resulted in `r min(bird.by.visit.PA.info$number.visit.sweeps) `--`r max(bird.by.visit.PA.info$number.visit.sweeps) ` sweeps per visit (median `r median(bird.by.visit.PA.info$number.visit.sweeps) ` sweeps per visit). I recorded each bird species seen and whether birds were observed foraging. Foraging activities required visual confirmation except for woodpeckers. I did not record birds flying overhead, water dependent birds, or raptors [@melles2003; @jokimaki1998]. I recorded sweeps using an Olympus WS-822 digital recorder; myself and Bob Sundstrom confirmed identifications made in the field and performed quality checks.
 
 
 ### Bird guilds
 
-I constructed bird guilds based on the Birds of North America Online database and classified bird species based on three factors: diet, foraging substrate, and forest preference [@bnao]. I used three diet categories: insectivore (90%+ insects), grainivore (90%+ seeds), omnivore (mix of insects/invertebrates, fruit, seeds, and other plant parts in various proportions). The three foraging substrate classes were: ground foragers, tree and shrub foragers, or no preference; the no preference group was not analyzed as it contained only 3 bird species. I used three forest preference classes: conifer, mixed conifer/deciduous, and no preference or open habitat preferred. 
+I constructed bird guilds based on diet, foraging substrate, and forest preference following previous research [@bnao]. Observed bird species included insectivores [insects 90% or greater proportion of diet; @blair2008; @zhou2012; @beissinger1982; @chace2006], grainivores [seeds 90% or greater; @blair2008; @werner2009; @zhou2012; @chace2006] and omnivores [mix of invertebrates, fruit, seeds, and plant parts; @jokimaki2003; @lepczyk2004]. Foraging substrates included ground foragers and tree and shrub foragers [@beissinger1982; @chace2006]. Forest preference included conifer, mixed conifer/deciduous, and no preference or open habitat preferred. 
 
-I chose these groups based on previous research examining the impact of urbanization on bird trophic guilds. Most studies on feeding guilds focus on diet, including granivores [@chace2006; @blair2008; @werner2009; @zhou2012], omnivores [@lepczyk2004; @jokimaki2003], and insectivores [@blair2008; @zhou2012; @beissinger1982; @chace2006]. Changes in vegetation structure and composition also impact richness of bird guilds defined by foraging method. In urban areas, canopy and bark gleaners are reduced while ground gleaners are more abundant [@beissinger1982; @chace2006].
 
 ### Independent variables
 
-#### Detection variables {-}
+**Detection variables:** I recorded loud noise levels and weather conditions that could have impacted my ability to detect birds [including overcast skies, fog, and drizzle; @leukering1998]. I used median hourly data for air temperature, wind speed, and solar radiation (brightness), and cumulative rainfall from AgWeatherNet [Woodinville sensor; @agweathernet]. 
 
-Potential detection variables include noise levels and weather conditions that can influence the observer's ability to detect birds. Loud noise conditions were recorded in situ and when they consistently interfered with detection, such as leaf blower noise from adjacent property [@leukering1998]. Overcast skies (76-100% cloud cover), fog, and drizzle were also recorded. Hourly data for air temperature, rainfall, wind speed, and solar radiation (brightness) were obtained from AgWeatherNet and the median across time spent at each site calculated [Woodinville sensor; @agweathernet]. 
+**Vegetation:** Individual trees > 4" DBH were identified to species or genus, and all members of the shrub community were identified to species or genus [@dyson2019veg; @sunset1995; @krussmann1985; @symonds1963shrub; @symonds1958tree; @dirr2009manual; @dirr1997hardy; @cope2001muenscher; @sibley2009; @city-trees]. Tree and shrub genera were assigned to one of three provenance categories---native, non-native, or ambiguous---based on range information from the United States Geological Survey and the United States Department of Agriculture [@USGSplants; @USDAplants]. The ambiguous category was used for genera including both native and non-native cultivated species that are difficult to distinguish, and/or frequently interbred and sold as crosses. 
 
-#### Vegetation data {-}
+Native and ornamental tree community types and shrub community types were identified with flexible beta clustering [@dyson2019veg]. The tallest five native conifers were measured and the median was used as a proxy for tree age [@dyson2019private]. The presence of stands predating development was determined from historical records [@dyson2019veg]. Other variables derived from the shrub community include the density of native shrubs and effective species richness of native shrub species [@jost2006].
 
-__Tree Community:__ At each site, individual trees > 4" DBH were identified to species or genus [@symonds1958tree; @dirr2009manual; @dirr1997hardy; @cope2001muenscher; @sibley2009; @city-trees]. Flexible beta clustering and indicator species analysis identified two tree community typologies on office developments, characterized by native and ornamental species. Other variables derived from the tree community include median dominant Douglas-fir height as a proxy for tree age and native conifer density. The presence of stands predating development was determined from historical records [@dysonveg2019].
+**Ground cover:** Ground cover types were recorded on paper maps, then hand digitized to calculate the area of impervious surfaces on site [@QGIS].
 
-__Shrub Community:__ At each site, all members of the shrub community were identified to species or genus [@sunset1995; @krussmann1985; @symonds1963shrub; @dirr1997hardy; @dirr2009manual]. Flexible beta clustering and indicator species analysis were used to identify two shrub community typologies, as with the tree community they were characterized by native and ornamental species respectively. Other variables derived from the shrub community include the density of native shrubs and effective species richness of native shrub species [@jost2006]. Tree and shrub genera were assigned to one of three provenance categories---native, non-native, or ambiguous---based on range information from the United States Geological Survey and the United States Department of Agriculture [@USGSplants; @USDAplants]. The ambiguous category was used for genera including both native and non-native cultivated species that are difficult to distinguish, and/or frequently interbred and sold as crosses. 
+**Parcel and Neighborhood Variables:** I derived parcel-scale and neighborhood-scale variables from available databases  [Table 1; @ACS5yr; @taxDB; @KCDB; @xian2011; @homer2015; @dyson2019veg]. I chose a 500 m buffer around the parcel boundary for neighborhood-scale variables based on previous research and the likely winter foraging ranges of local native bird species [@bnao; @melles2003].
 
-__Ground Cover:__ Ground cover types were recorded on paper maps, then hand digitized to calculate the area of impervious surfaces on site [@QGIS].
+I quantified the percent of tall tree canopy cover and of short and medium height vegetation cover using 2015 NAIP, 2014 Redmond LiDAR data and 2016 King County LiDAR data [@NAIP; @RedLiDAR; @KingCoLiDAR]. I classified pixels as tall tree canopy when NDVI $\geq$ 0.15 and object height $\geq$ 50 feet and as short and medium height vegetation when NDVI $\geq$ 0.15 and object height < 50 feet. I calculated the number of major intersections by intersecting major road data, checking for accuracy by hand, and then counting the number of intersections within a 500 m radius [@roadsdata].
 
-\newpage
-\setstretch{1.15}
+**Maintenance data:** I interviewed each site's landscaping service using the elite interview technique and supplemented these interviews with observational data from site visits [@dexter1970; @harvey2011]. I also censused each site for logs (over 6" diameter), snags (over 6" diameter and over 6' tall), and stumps (tree stumps over 6" diameter). Stumps where the tree had grown from a co-dominant trunk were counted. 
+
 
 
 ```{r CH3-covariate-definitions}
@@ -163,19 +150,12 @@ covariate.definitions <- tibble(
   "Median Solar Radiation (W/m^2)",
   
   "2.",
-  #"Vegetation Class",
-  "Tree Community Group",
-  "Shrub Community Group",
-  
-  "3.",
   "Area",
-  "Town",
   "Building Age (in 2017)",
-  "Building Quality",
   "Appraised Land Value per Acre",
   
   
-  "4.",
+  "3.",
   "Impervious w/in 500 m (%)",
   "Tall Vegetation w/in 500 m (%)",
   "Short and Medium Vegetation w/in 500 m (%)",
@@ -184,45 +164,49 @@ covariate.definitions <- tibble(
   "Percent Foreign-Born",
   
   
-  "5.",
+  "4.",
   "Impervious on Site (%)",
   "Stands Predate Development",
-  "Median Height of Dominant Douglas-fir",
-  "Density of Native Conifers",
-  "Native Shrub Effective Species Richness",
-  "Density of Native Shrubs",
-  "Cleanup",
+  "Median Height of Dominant Conifers",
+  
   "Irrigation",
-  "Mulch, Herbicide, and/or Fertilizer Application",
-  "Mushroom Removal",
-  "Dead Wood"
+  "Dead Wood",
+  
+  "Tree Community Group",
+  "Shrub Community Group",
+    
+  "Tree Density",
+  "Non-native Tree Effective Species Richness",
+  "Non-native Tree Density",
+  "Native Tree Effective Species Richness",
+  "Native Tree Density",
+  "Native Conifer Density",
+  
+  "Shrub Density",
+  "Non-native Shrub Effective Species Richness",
+  "Non-native Shrub Density",
+  "Native Shrub Effective Species Richness",
+  "Native Shrub Density"
+
   
   ),
   
   Definition = c(
   "DETECTION VARIABLES",
-  "Proportion of site visits with loud noise.",
-  "Proportion of site visits with fog.",
-  "Proportion of site visits with light rain.",
-  "Proportion of site visits where cloud cover exceeded 75%.",
+  "Site visits with loud noise.",
+  "Site visits with fog.",
+  "Site visits with light rain.",
+  "Site visits where cloud cover exceeded 75%.",
   "Median of median air temperature observed during each visit.",
   "Median of median wind speed observed during each visit.",
   "Median of median wind gusts observed during each visit.",
-  "Summed over all 8 visits.",
+  "Precipitation summed over all 8 visits.",
   "Median of median solar radiation observed during each visit.",
-  
-  
-  "VEGETATION GROUPS",
-  #"Vegetation class assigned prior to site selection. Possible values are described in Chapter 2.",
-  "Broad tree community typology (native or ornamental) based on flexible beta cluster analysis of tree density data.",
-  "Broad shrub community typology (native or ornamental) based on flexible beta cluster analysis of shrub density data.",
   
   
   "SITE-SCALE SOCIO-ECONOMIC VARIABLES",
   "Site area, in acres.",
-  "Location, Bellevue or Redmond.",
   "Age of building on site (or mean age for multiple buildings) in 2017.",
-  "Categorical quality class assigned to buildings on the parcel.",
   "Appraised land value divided by site area. One missing assessed land value was replaced with the population median land value.",
   
   
@@ -235,18 +219,29 @@ covariate.definitions <- tibble(
   "The median income of residents for the site's block group.",
   "The percent of residents born outside of the United States for the site's block group.",
   
-  "DEVELOPMENT, LANDSCAPING, AND MAINTENANCE VARIABLES",
-  "Percent of the parcel's area occupied by impervious surface. (Development)",
+  "DEVELOPMENT & LANDSCAPING CHOICE VARIABLES",
+  "Percent of the parcel's area occupied by impervious surface.",
   "Presence/absence of a stand of three+ trees nearby one another that predate development. (Development)",
-  "Median height (m) of 5 dominant Douglas-fir, as a proxy for age. (Development)",
-  "Total density of Douglas-fir, western red cedar, and western hemlock. (Development/ Landscape)",
-  "Effective species richness is calculated as exp(H'), following Jost (2006). (Landscaping)",
-  "Combined density of all native shrub species (# / site area in acres). (Landscaping)",
-  "Indicates whether the landscaping crew removes detritus from the site. (Maintenance)",
-  "Indicates whether irrigation is used during the summer months. (Maintenance)",
-  "Variables (3) indicating whether landscaping crew applies mulch, herbicides, or fertilizers to a site. (Maintenance)",
-  "Indicates whether the landscaping crew removes above-ground mushrooms. (Maintenance)",
-  "Total abundance of stumps, logs, and snags on site. (Maintenance)"
+  "Median height (m) of 5 dominant native conifers; a proxy for age.",
+  "Indicates whether irrigation is used during the summer months.",
+  "Total abundance of stumps, logs, and snags on site.",
+  
+  "Tree community type (native or ornamental) based on flexible beta cluster analysis of tree density data.",
+  "Shrub community type (native or ornamental) based on flexible beta cluster analysis of shrub density data.",
+  
+  "Total number of all trees on site divided by site area.",
+  "Effective species richness of non-native trees. ESR is calculated as exp(H'), following Jost (2006).",
+  "Total number of non-native trees on site divided by site area.",
+  "ESR of native trees as exp(H')",
+  "Total number of native trees on site divided by site area",
+  "Total number of Douglas-fir, western red cedar, and western hemlock on site divided by site area.",
+  
+  "Total number of all shurbs on site divided by site area.",
+  "ESR of non-native shrubs calculated as exp(H').",
+  "Total number of non-native shrubs on site divided by site area.",
+  "ESR of native shrubs calculated as exp(H').",
+  "Total number of native shrubs on site divided by site area."
+
   
   ),
   
@@ -263,12 +258,6 @@ covariate.definitions <- tibble(
 "WSU AgWeatherNet",
 
 "",
-"Site survey",
-"Site survey",
-
-"",
-"King County Assessor",
-"King County Assessor",
 "King County Assessor",
 "King County Assessor",
 "King County Assessor",
@@ -285,13 +274,20 @@ covariate.definitions <- tibble(
 "Site survey",
 "Site survey",
 "Site survey",
+"Interviews and site survey",
 "Site survey",
 "Site survey",
 "Site survey",
-"Interviews and site survey",
-"Interviews and site survey",
-"Interviews and site survey",
-"Interviews and site survey",
+"Site survey",
+"Site survey",
+"Site survey",
+"Site survey",
+"Site survey",
+"Site survey",
+"Site survey",
+"Site survey",
+"Site survey",
+"Site survey",
 "Site survey"
 )
 )
@@ -312,220 +308,180 @@ knitr::kable(covariate.definitions,
 
 ```
 
-\setstretch{1.65}
-
-#### Parcel and Neighborhood Variables {-}
-
-I calculated parcel-scale socio-economic variables including site area, year built, building quality, assessed land value per acre, and town, and neighborhood-scale variables including percent impervious within 500 m, median household income, and percent foreign-born based on available databases [@taxDB; @ACS5yr; @KCDB; @xian2011; @homer2015; @dysonveg2019]. 
-
-Neighborhood-scale variables include measures of the built environment and socio-economic context found significant in explaining bird habitat use in previous studies [@villegas2010; @schutz2015; @loss2009; @luck2013; @germaine1998; @hope2003; @kinzig2005; @lerman2011; @melles2005; @munyenyembe1989; @beumer2015; @vanheezik2013]. For neighborhood variables, I chose a 500 m buffer based on previous research and the likely winter foraging ranges of local native bird species [@bnao; @melles2003]. In the study area, this foraging range includes multiple land use types; the commercial properties studied were often adjacent to residential property, and all properties had residential land uses within 500 m. While decisions on in social-ecological systems are driven by a diversity of human agents, and decisions on commercial properties are likely driven by different motivations and considerations than residential property, bird ranges include both types of property and this should be reflected in models. Additionally, including these variables facilitates comparison with results from residential property. 
-
-For birds, canopy cover and canopy height are measures of neighborhood vegetation used in the literature [@beumer2015; @vanheezik2013]. I quantified the percent of tall tree canopy cover and of short and medium height vegetation cover using NAIP and LiDAR data and determined the number of major intersections in a 500 m radius to further measure the habitat matrix in the neighborhood surrounding each site. To calculate vegetation cover measures, I first calculated NDVI from the 2015 NAIP data [@NAIP]. I also calculated object height from 2014 Redmond LiDAR data and 2016 King County LiDAR data by subtracting the digital terrain model from the digital surface model [@RedLiDAR; @KingCoLiDAR]. I classified pixels as tall tree canopy when NDVI $\geq$ 0.15 and object height $\geq$ 50 feet and as short and medium height vegetation when NDVI $\geq$ 0.15 and object height < 50 feet. The percent cover of each was then calculated in a 500 m radius around the parcel boundary. I calculated the number of major intersections by intersecting major road data, checking for accuracy by hand, and then counting the number of intersections within a 500 m radius [@roadsdata].
-
-
-#### Maintenance data {-}
-
-I interviewed each site's landscaping service using the elite interview technique and supplemented these interviews with observational data from site visits [@dexter1970; @harvey2011]. I then assigned a value (Yes, No, Unknown) to variables based on performance of the following maintenance activities at each site: cleanup (leaf blowing, mowing, etc.), herbicide application, fertilizer application, insecticide application, fungicide application, summer irrigation, mulch application, and mushroom removal. I removed "Insecticide" and "Fungicide" application from further consideration as there were no "Yes" responses. I chose these maintenance variables based on previous research results [@solomou2014; @lepczyk2004; @mineau2013; @gibbons2015; @defrutos2015; @cook2006].
-
-I also censused each site for logs, snags and stumps based on existing knowledge of bird habitat preference [@linden2013; @hallett2001; @kroll2012; @walter2005]. Logs needed to be more than 6" in diameter for inclusion. Snags needed to be more than 6" in diameter with the majority more than 6' tall; dead wood not meeting this height requirement was considered a stump. Shrub stumps were not counted towards the total. Multi-trunk stumps were counted only once. Stumps where the tree had grown from a co-dominant trunk were counted. 
-
 
 
 
 ### Data analysis
 
-Data analysis methods are summarized in Figure \@ref(fig:CH3-methods-fig).
+I calculated bird incidence as $incidence = \frac{\text{count of visits observed}}{8 \text{ visits}}$. I used incidence and not a repeated measures design as between site, not between year, variability is important. Unknown species were recorded in the field but removed from analysis; unknown species accounted for only `r sum(bird.by.visit.PA.info$sweeps.present[which(bird.by.visit.PA.info$text.spp == "unknown")])` out of `r sum(bird.by.visit.PA.info$sweeps.present) ` observations (`r round(sum(bird.by.visit.PA.info$sweeps.present[which(bird.by.visit.PA.info$text.spp == "unknown")]) / sum(bird.by.visit.PA.info$sweeps.present) * 100, 3)`%).
 
+Rare species observed fewer than two times were removed prior to calculating univariate effective species richness for all birds and bird guilds [@jost2006]. Rare species were not removed from multivariate community composition matrices [@mccune2002]. TITAN requires more than 3 observations of a species [@titan2]. No further transformations were used in this analysis.
 
-#### Bird incidence calculation {-}
+I used PERMANOVA with the Euclidian and Bray-Curtis distance matrix respectively for univariate analysis of effective species richness and multivariate analysis of community composition,  [adonis2 {vegan}; @anderson2001; @bakker2012; @jost2006; @vegan; @mccune2002]. I first tested each independent variable in a simple model. Significance for all tests was assessed on pseudo-_F_ _p_-values at $\alpha \leq 0.05$. I used ANOVA to test for significant differences in categorical group dispersion using anova(betadisper()) {stats} {vegan} [@vegan]. Betadispersion was calculated for all categorical variables and evaluated at$\alpha \leq 0.05$.
 
-Bird species incidence was defined as $incidence = \frac{\text{count of visits observed}}{8 \text{ visits}}$. I used incidence and not a repeated measures design as between site, not between year, variability is important. Incidence also reduces the influence of local species subject to population irruptions including Red Crossbill and Bushtit. Unknown species were recorded in the field but removed from analysis; unknown species accounted for only `r sum(bird.by.visit.PA.info$sweeps.present[which(bird.by.visit.PA.info$text.spp == "unknown")])` out of `r sum(bird.by.visit.PA.info$sweeps.present) ` observations (`r round(sum(bird.by.visit.PA.info$sweeps.present[which(bird.by.visit.PA.info$text.spp == "unknown")]) / sum(bird.by.visit.PA.info$sweeps.present) * 100, 3)`%).
+For both univariate and multivariate analyses, I then constructed models using combinations of 1 to 4 of the significant variables identified. I used a custom AICc function for PERMANOVA to compare models and identify variables with the best support based on summed AIC weights [@dysoncode; @arnold2010]. In addition for univariate analysis, I examined the relationship between bird guild effective species richness and the significant variables identified. This approach helped ensure interpretable results that are more relevant to urban planners and management professionals. 
 
-Rare species observed fewer than two times were removed prior to calculating univariate effective species richness for all birds and bird guilds [@jost2006]. Rare species were not removed from multivariate community composition matrices [@mccune2002]. No further transformations (e.g. Wisconsin standardization) were used for multivariate analysis. The standardized search methodology controls appropriately for between-site variability making this transformation unnecessary. 
-	
-```{r CH3-methods-fig, out.width = "100%", fig.cap="Summary of data analysis methods for bird communities."}
-
-	knitr::include_graphics("images/birdmethods.png", auto_pdf = TRUE)
-  
-```
-	
-#### Vegetation association preference {-}
-
-Correlation indices were used to determine the ecological preferences of species, among a set of site groups with different conditions---here, native vs. ornamental tree and shrub community typologies identified using flexible-beta cluster analysis [@de2013; @decaceres2010]. I used a custom wrapper for the multipatt {indicspecies} implementation of the point biserial correlation coefficient to run the function 100 times and keep indicator species present in > 50% of the runs [function r.g; @decaceres2010; @indicspecies; @dysoncode]. I took the mean indicator statistic and kept those species with a mean index value > 0.5. I took this cutoff from @hinkle2003, who suggest that correlation size 0.5-0.7 is a moderate correlation; 0.7-0.9 a high correlation, and 0.9-1.0 a very high correlation. 
-
-#### Explaining variation in effective species richness {-}
-
-Effective species richness is defined as the exponent of Shannon entropy [@jost2006]. To assess variation in effective species richness and partition variation, I tested each independent variable in a simple univariate model using the adonis2 {vegan} PERMANOVA implementation with the Euclidian distance matrix [@vegan; @bakker2012]. Significance for all tests was assessed on pseudo-_F_ _p_-values at $\alpha \leq 0.05$. I then constructed models using all significant variables without significant betadispersion in all possible single and multiple variable model combinations. I used a custom AICc function based on Residual Sums of Squares to compare models and identify those with the best support. This sequential testing and model iteration approach reduced the need to standardize independent variables or use PCA to collapse related variables. This helped ensure interpretable results that are more relevant to urban planners and management professionals. 
-
-For bird guild species richness, I used two of the most supported variables for the full community and percent impervious surface found significant in other studies. I used the Holm-Bonferroni method to control error rate within groups, and also calculated Spearman's correlation {stats}. 
-
-#### Explaining variation in bird community structure {-}
-
-I used PERMANOVA to identify variables that explain variation in bird or foraging bird community composition and NMDS for visualization [@vegan; @mccune2002]. As in univariate analysis, I tested each independent variable in a simple multivariate model using a Bray-Curtis distance matrix [@anderson2001, @vegan]. I used ANOVA to test for significant differences in categorical group dispersion using anova(betadisper()) {stats} {vegan} [@vegan]. For variables with significant pseudo-_F_ values and non-significant betadispersion, I calculated AICc using a custom function based on Residual Sums of Squares to compare all possible models using this reduced set of variables.
+To explore changes in community composition along significant environmental gradients, I used point-biserial correlation [categorical variables; @de2013; @decaceres2010; @dysoncode] and TITAN analysis [@king2014; @baker2013; @titan2]. As point-biserial correlation is sensitive to initial conditions, I used a custom wrapper for the multipatt {indicspecies} implementation to run the function 100 times and keep indicator species present in > 50% of the runs and with mean statistic > 0.5 [@dysoncode; @hinkle2003]. 
 
 
 
 
-## Results {#CH3-results}
 
-I observed `r ncol(matrify.incidence.clean)` species during my surveys, `r sum(descriptive.bird.bysp$foraging.num.sites > 0) ` of which were observed foraging. The number of species observed on each site varied between `r min(descriptive.bird.bysite$bird.sp.richness)` to `r max(descriptive.bird.bysite$bird.sp.richness)` species (mean `r mean(descriptive.bird.bysite$bird.sp.richness)` $\pm$ `r round(sd(descriptive.bird.bysite$bird.sp.richness),1)`), with the number of bird species observed foraging between `r min(descriptive.bird.bysite$foraging.sp.richness)` to `r max(descriptive.bird.bysite$foraging.sp.richness)` species per site (mean `r mean(descriptive.bird.bysite$foraging.sp.richness)` $\pm$ `r round(sd(descriptive.bird.bysite$foraging.sp.richness),1)`). 
+## Results
 
-The most frequently observed species included Dark-eyed Junco (`r round(16.625/20*100,1)`% of visits), American Crow (`r round(15.125/20*100,1)`% of visits), and Golden-crowned Kinglet (`r round(14.500/20*100,1)`% of visits). Common Raven, Downy Woodpecker, Hutton's Vireo, Killdeer, and Rock Pigeon were each seen only once (`r round(.125/20*100,1)`% of visits). Most bird species I observed were native; of the three non-native species encountered, only European Starling was observed with frequency (11 sites), and House Sparrow and Rock Pigeon were seen at only 1 site each. The overall prevalence of non-native species was low compared with previous research on winter urban bird communities [@clergeau1998]. Full species lists are available in [Appendix B: Birds](#CH08-birdappendix).
+I observed `r ncol(matrify.incidence.clean)` bird species, with `r sum(descriptive.bird.bysp$foraging.num.sites > 0) ` species observed foraging (Supplemental Tables XXX & XXX). The number of species observed on each site varied between `r min(descriptive.bird.bysite$bird.sp.richness)` and `r max(descriptive.bird.bysite$bird.sp.richness)` species (mean `r mean(descriptive.bird.bysite$bird.sp.richness)` $\pm$ `r round(sd(descriptive.bird.bysite$bird.sp.richness),1)`), with the number of bird species observed foraging between `r min(descriptive.bird.bysite$foraging.sp.richness)` to `r max(descriptive.bird.bysite$foraging.sp.richness)` species per site (mean `r mean(descriptive.bird.bysite$foraging.sp.richness)` $\pm$ `r round(sd(descriptive.bird.bysite$foraging.sp.richness),1)`). 
 
-### Vegetation association preference {#CH3-vegetation-association}
-
-Bird species associated with conifer forests, including Brown Creeper and Townsend's Warbler, prefer sites with native tree community clusters [@bnao]. The only bird species associated ornamental tree communities was the American Crow. The habitat preferences of birds observed foraging on site also follows this pattern (Table \@ref(tab:CH3-point-biserial)). 
+The most frequently observed species included Dark-eyed Junco (`r round(16.625/20*100,1)`% of visits), American Crow (`r round(15.125/20*100,1)`% of visits), and Golden-crowned Kinglet (`r round(14.500/20*100,1)`% of visits). Common Raven, Downy Woodpecker, Hutton's Vireo, Killdeer, and Rock Pigeon were each seen only once. Most bird species I observed were native; of the three non-native species encountered, only European Starling was observed at multiple sites (11 sites), while House Sparrow and Rock Pigeon were seen at only 1 site each.
 
 
+### Effective species richness results
 
-```{r CH3-point-biserial}
-
-
-pretty.pbiserial.all <- tibble(
-  `Bird Species` = c("Red-breasted Nuthatch",
-            "Brown Creeper",
-            "Townsend's Warbler",
-            "Golden-crowned Kinglet",
-            "Chestnut-backed Chickadee",
-            "American Crow",
-            "---",
-            "Townsend's Warbler",
-            "American Crow"
-            ),
-  `Vegetation Type` = c("Native Tree",
-             "Native Tree",
-             "Native Tree",
-             "Native Tree",
-             "Native Tree",
-             "Ornamental Tree",
-             "---",
-             "Native Shrub",
-             "Ornamental Shrub"
-             ),
-  `Mean Statistic` = c("0.756",
-             "0.626",
-             "0.510",
-             "0.506",
-             "---",
-             "---",
-             "---",
-             "0.517",
-             "0.510"
-             ),
-  `Mean Foraging Stat` = c("0.708",
-               "0.555",
-               "0.512",
-               "---",
-               "0.512",
-               "0.554",
-               "---",
-               "0.512",
-               "0.554"
-               ),
-  Diet = c("Omnivore", "Insectivore", "Insectivore", "Insectivore",
-       "Omnivore", "Omnivore", "---",
-       "Insectivore", "Omnivore"),
-  `Foraging Substrate` = c("Trees and Shrubs", "Trees and Shrubs",
-               "Trees and Shrubs", "Trees and Shrubs",
-               "Trees and Shrubs", "Ground",
-               "---", "Trees and Shrubs", "Ground"),
-  `Forest Preference` = c("Conifer", "Conifer", "Conifer", 
-              "Conifer", "Conifer", "Open or No Preference",
-              "---", "Conifer", "Open or No Preference")
-)
-  
+Variables describing site-scale impervious surface coverage, tree, and shrub communities significantly explained variation in univariate analysis of effective species richness (ESR) after controlling for the proportion of overcast survey visits, the only significant detection variable. Specifically, 
+median dominant conifer height (m, pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "height.m.median","pseudo.F"]`),
+the presence of stands predating development (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "stand.predate.development","pseudo.F"]`),
+non-native tree density (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "tree.orn.dens","pseudo.F"]`),
+tree community type (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "tree.cluster.name","pseudo.F"]`),
+native conifer density (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "conifer.nat.dens","pseudo.F"]`),
+native shrub effective species richness (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "shrub.nat.esr","pseudo.F"]`),
+native shrub density (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "shrub.nat.dens","pseudo.F"]`),
+impervious surface cover on site (%,  (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "impervious.pct","pseudo.F"]`)),
+native tree density (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "tree.nat.dens","pseudo.F"]`), and
+shrub community type  (pseudo-_F_ = `r sig.uPERM.results[sig.uPERM.results$var.names == "shrub.cluster.name","pseudo.F"]`)
+were significant. 
+No neighborhood-scale socio-economic or land cover variables were significant (Supplemental Table XXX). Significant variables suggest ecologically meaningful patterns; for example, increasing median dominant conifer height (m) by 10m increases expected bird ESR by 4 species, the presence of a tree stand predating development increases expected bird ESR by about 4.5 species, and increasing the non-native tree density by 10 trees/acre decreases expected bird ESR by about 2 species (Figure \@ref(fig:univariate-significant-plots)). Within the tree community, measures of native tree density positively impact predicted bird ESR, while non-native tree density negatively impacts it (Table \@ref(tab:tree-density-effect)). 
 
 
-knitr::kable(pretty.pbiserial.all[ 1:6, ],
-       booktabs = T,
-       "latex",
-       caption = "Bird species with significant ecological preferences as determined by point biserial correlation.") %>%
-    kable_styling(full_width = T,
-           latex_options = c("striped"),
-           font_size = 9) %>%
-    column_spec(1, width = "10em", bold = F) %>%
-    column_spec(2, width = "5em") #%>%
-    #row_spec(0, bold = T)
 
+```{r univariate-significant-plots, fig.width = 7.5, fig.cap="(ref:univaritesig)"}
 
-# caption = "(ref:distribution)" could work.
-# , "striped"
-# Bird species with significant ecological preferences. Point biserial correlation _p_-value < 0.05, mean statistic > 0.50, and with frequency (out of 100 runs) of > 50%. The proportion of species found with significant vegetation associations is similar to that observed in other studies [@decaceres2010]. 
+# Median conifer height
+fit <-
+  lm(data = univariate.sprich,
+     bird.effective.sp_2 ~ clouds.76.100.proportion + height.m.median)
+
+p.height.m.median <-
+  plot_model(fit,
+             type = "pred",
+             terms = "height.m.median",
+             show.data = TRUE,
+             axis.title = c("Median Dominant Conifer Height (m)",
+                            "Bird Effective Species Richness"),
+             title = "")
+        
+# stand predates development
+univariate.sprich$stand.predate.development.p <- 
+  ifelse(univariate.sprich$stand.predate.development == "no.unkn",
+                                              "No.or.Unknown",
+                                              "Yes")
+fit <-
+  lm(data = univariate.sprich,
+     bird.effective.sp_2 ~ clouds.76.100.proportion + stand.predate.development.p)
+
+p.SPD <-
+  plot_model(fit,
+             type = "pred",
+             terms = "stand.predate.development.p",
+             show.data = TRUE, 
+             axis.title = c("Stand Predates Development",
+                            " "),
+             title = "",) + scale_x_discrete(limits = c("No or Unknown","Yes"))
+
+        
+# ornamental tree density
+fit <-
+  lm(data = univariate.sprich,
+     bird.effective.sp_2 ~ clouds.76.100.proportion + tree.orn.dens)
+
+p.tree.orn.dens <-
+  plot_model(fit,
+             type = "pred",
+             terms = "tree.orn.dens",
+             show.data = TRUE,
+             axis.title = c("Non-native Tree Density",
+                            " "),
+             title = "")
+        
+grid.arrange(p.height.m.median, p.SPD, p.tree.orn.dens, ncol = 3)
+
 
 ```
 
 
-### Explaining variation in effective species richness
+``` {r tree-density-effect}
 
-#### Effective species richness of all observed bird species {-}
+        # ornamental tree density
+        fit.tree.orn.dens <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion + tree.orn.dens)
+        
+        # native tree density
+        fit.tree.nat.dens <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion + tree.nat.dens)
+        
+        # native CONIFER density
+        fit.conifer.nat.dens <-  lm(data = univariate.sprich, bird.effective.sp_2 ~ clouds.76.100.proportion + conifer.nat.dens)
+        
+cols <- c("All Non-Native"="#E69F00","All Native"="#56B4E9","Native Conifer"="#0072B2")
+        ggplot() + geom_ribbon(
+          data = ggpredict(fit.tree.orn.dens, terms = "tree.orn.dens"),
+          aes(x, ymin = conf.low, ymax = conf.high),
+          fill = "#bbbbbb",
+          alpha = .3
+        ) +
+          geom_ribbon(
+            data = ggpredict(fit.tree.nat.dens, terms = "tree.nat.dens"),
+            aes(x, ymin = conf.low, ymax = conf.high),
+            fill = "#bbbbbb",
+            alpha = .3
+          ) +
+          geom_ribbon(
+            data = ggpredict(fit.conifer.nat.dens, terms = "conifer.nat.dens"),
+            aes(x, ymin = conf.low, ymax = conf.high),
+            fill = "#bbbbbb",
+            alpha = .3
+          ) +
+          
+          geom_line(
+            data = ggpredict(fit.tree.orn.dens, terms = "tree.orn.dens"),
+            aes(x, predicted, col = "All Non-Native"),
+            size = 1.6,
+          ) +
+          geom_line(
+            data = ggpredict(fit.tree.nat.dens, terms = "tree.nat.dens"),
+            aes(x, predicted, col = "All Native"),
+            size = 1.6
+          ) +
+          geom_line(
+            data = ggpredict(fit.conifer.nat.dens, terms = "conifer.nat.dens"),
+            aes(x, predicted, col = "Native Conifer"),
+            size = 1.6
+          ) +
+          scale_colour_manual(name="Tree Type",values=cols) +
+          ylab("Predicted Bird Effective Species Richness") +
+          xlab("Site Tree Density (trees/acre)") +
+          labs(title = "Effect of Tree Density on Predicted Bird ESR")
+        
 
-The proportion of overcast survey visits, significantly explained variation in effective bird species richness. Three variables describing the outcome of development and management actions were significant after controlling for the proportion of overcast visits: presence of stands predating development, percent impervious surface on site, and median Douglas-fir height (Figure \@ref(fig:CH3-univariate-significant-plots)). The site's tree and shrub community typology identification as either native or ornamental was also significant. No neighborhood socio-economic variables, neighborhood land cover variables, or other landscaping and maintenance variables were significant; all single variable results can be found in [Appendix B: Birds](#CH07-birdappendix))
+        
+        
+```
 
-```{r CH3-univariate-significant-plots, warning = FALSE, fig.width = 6.5, fig.height = 2.5, fig.cap="(ref:univaritesig)", out.width="85%"}
+The variable with the most support is median dominant conifer height (Table \@ref(tab:uPERM-summed-AIC-weight)). The expanded model with the presence of a stand predating development recieves equal support using $\Delta$AICc, however summed AIC weights across all models tested suggests it may be an uninformative addition possibly because it is too similar [@arnold2010].
 
-p1 <- ggplot(univariate.sprich, aes(y = bird.effective.sp_2, x = stand.predate.development)) + 
-  geom_point() + 
-  geom_smooth(aes(y = bird.effective.sp_2, x = stand.predate.development),
-        method = "lm", formula = y ~ x, color = "yellowgreen", alpha = .2) +
-  labs(x = "Stand Predates \nDevelopment", y = "Effective Bird Species Richness") + 
-  geom_jitter() +
-  geom_boxplot(fill = "yellowgreen", alpha = .4) +
-  scale_y_continuous(limits = c(6,23.5))
+```{r uPERM-summed-AIC-weight}
 
-p2 <- ggplot(univariate.sprich) + geom_point(aes(y = bird.effective.sp_2, x = height.m.median)) + 
-  geom_smooth(aes(y = bird.effective.sp_2, x = height.m.median),
-        method = "lm", formula = y ~ x^2, color = "yellowgreen", alpha = .2) +
-  labs(x = "Median Douglas-fir \nHeight (m)", y = "") +
-  scale_y_continuous(limits = c(6,23.5))
+multi.uPERM.AICc.weights.byvar$`Significant Variable` <- c("Native Conifer Density",
+                                                           "Median Dom. Conifer Height (m)",
+                                                           "Impervious on Site (%)",
+                                                           "Native Shrub Density",
+                                                           "Native Shrub ESR",
+                                                           "Stand Predates Development",
+                                                           "Native Tree Density",
+                                                           "Non-native Tree Density",
+                                                           "Shrub Community Type",
+                                                           "Tree Community Type")
 
-
-p3 <- ggplot(univariate.sprich) + geom_point(aes(y = bird.effective.sp_2, x = impervious.sqft)) + 
-  geom_smooth(aes(y = bird.effective.sp_2, x = impervious.sqft),
-        method = "lm", formula = y ~ x, color = "yellowgreen", alpha = .2) +
-  labs(x = "% Impervious \nat Site", y = "") +
-  scale_y_continuous(limits = c(6,23.5))
-
-
-grid.arrange(p1, p2, p3, ncol = 3)
+knitr::kable(multi.uPERM.AICc.weights.byvar, digits = 3)
 
 ```
 
-(ref:univaritesig) Three development and landscaping variables which  significantly explain variation in bird effective species richness, with ecologically meaningful effect sizes. The presence of stands predating development was associated with a greater effective species richness of approximately 7 bird species, and for every additional 10 m median Douglas-fir height effective species richness can be expected to increase approximately 3 species. Increasing percent impervious on site by 10% can be expected to decrease effective species richness by approximately 2 species
-
-The best supported model includes proportion of overcast visits and median dominant Douglas-fir height, though the model with these variables and the presence of a stand predating development receives equal support (Table \@ref(tab:CH3-univariate-model-results)). No interaction terms were significant. The consistent inclusion of median Douglas-fir height in the best supported models suggests that this variable was particularly important for explaining variation in effective bird species richness. Variation explained for both models was approximately 75%.
-
-
-``` {r CH3-univariate-model-results}
-
-  
-  pretty.univ.results.sig <- 
-      pretty.univ.results[ pretty.univ.results$`_p_-value` < 0.05, c(5,1:4,6)]
-
-pretty.univ.results.sig$pretty.names <- str_remove_all(pretty.univ.results.sig$pretty.names, "__")
-
-rownames(pretty.univ.results.sig) <- pretty.univ.results.sig$pretty.names
-
-pretty.univ.results.sig[, 2:6] <-
-  lapply(pretty.univ.results.sig[, 2:6], as.numeric) %>%
-  lapply(., round, digits = 3)
-
-pretty.univ.results.sig <- pretty.univ.results.sig [ order(pretty.univ.results.sig$`Delta AICc`), ]
-
-colnames(pretty.univ.results.sig)[3:4] <- c("Pseudo-F", "p-value")
-  
-knitr::kable(pretty.univ.results.sig [ , c(2:4,6)], 
-       booktabs = TRUE,
-       "latex",
-       row.names = T,
-       caption = "Variables that significantly explain variation in bird effective species richness. Variables were tested in simple univariate models with overcast visits used as a control variable.") %>%
-      kable_styling(full_width = F,
-           latex_options = c("striped"),
-           font_size = 10) %>%
-      column_spec(1, bold = T, width = "11em") %>%
-      column_spec(2, bold = F, width = "7em") %>%
-      row_spec(0, bold = T)
-
-```
 
 
 
@@ -798,6 +754,11 @@ knitr::kable(pretty.foraging.AICc[ c(8,3,6,2,4,1,5,7,9),
 
 
 
+### Vegetation association preference
+
+Bird species associated with conifer forests, including Brown Creeper and Townsend's Warbler, prefer sites with native tree community clusters [@bnao]. The only bird species associated ornamental tree communities was the American Crow. The habitat preferences of birds observed foraging on site also follows this pattern (Table \@ref(tab:CH3-point-biserial)). 
+
+
 
 ## Discussion {#CH3-discussion}
 
@@ -948,3 +909,68 @@ Parcel-scale development and landscaping actions, including tree removal and pla
 My results contribute to our understanding of how human actions at the parcel-scale correlate with bird community composition on commercial land uses, and can help guide policy and management best practices. Evidence that developer and landowner vegetation choices impact bird richness and community composition suggest that actions and policies that accomplish native conifer preservation and the long-term management of the urban forest will be critical to the future of native birds that overwinter in the Puget Trough. These site-scale actions together contribute to the habitat provided by the urban matrix, and increasing habitat quality in the urban matrix contributes to breeding bird success and may reduce the probability of local extinction [@rosenzweig2003; @shoffner2018]. There is a significant role for developers, landowners, and policy makers to shape this future. Specific recommendations for the Puget Trough arising from this research include maximizing preservation of existing native canopy cover during development---including designing buildings to preserve trees and soils and avoiding 'green' development---and landscaping with native conifers. 
 
 Future research efforts should center on developing building techniques that are both cost effective and foster bird conservation, as changing developer and landowner actions and preferences is critical to sustainably and meaningfully altering development patterns. Where native conifers cannot be preserved or have already been lost, researchers should explore the value to local bird species of planting native conifer and deciduous trees and of alternative native habitats, including grasslands and shrublands mimicking newly disturbed/early successional habitat. Post-installation monitoring to determine the efficacy of suggested approaches is critical, though often ignored, and can also discover unintended consequences including elevated bird-window strike rates [@hostetler2011; @hager2017]. Finally, birds move across the landscape and have ranges overlapping multiple land use types. More comprehensive research on bird habitat associations and different land uses that relates management units (parcels) to bird presence is needed. More in depth studies of bird behavior and population biology including tracking their movements across cities is needed to better understand how the complex patterns that emerge in social-ecological systems impact bird habitat use.
+
+
+# Supplemental Information
+
+Supplemental Table \@ref(tab:pretty-descriptive-site) caption: Summary statistics for all 20 office developments where birds were sampled.
+
+``` {r pretty-descriptive-site}
+
+knitr::kable(pretty.descriptive.birds.site,
+             booktabs = TRUE,
+             row.names = FALSE, 
+             caption = "Summary statistics for all 20 office developments where birds were sampled.")
+
+```
+
+Supplemental Table \@ref(tab:pretty-descriptive-species-table) lists all bird species observed.
+
+``` {r pretty-descriptive-species-table}
+
+    pretty.descriptive.birds.species <- order(pretty.descriptive.birds.species, `Common Name`)
+
+knitr::kable(pretty.descriptive.birds.species[ , -c(4:5,8:9)],
+             booktabs = TRUE,
+             row.names = FALSE, 
+             caption = "All observed bird species.") %>%
+kable_styling(full_width = F,
+              latex_options = c("striped"),
+              font_size = 9) %>%
+    column_spec(3:6, width = "5em")
+
+
+```
+
+
+All univariate PERMANOVA model results for bird effective species richness. Detection variables, including variables median air temperature through total precipitation in Table \@ref(tab:univariate-model-results) were tested in simple models. All other variables were tested with the % of overcast visits as the control variable.
+
+``` {r univariate-model-results, fig.pos="H"}
+
+
+#pretty.univ.results <- pretty.univ.results[, c(4, 1, 2, 3, 5)]
+# pretty.univ.results <- pretty.univ.results[order(pretty.univ.results$`Delta AICc`, decreasing = FALSE) , ]
+
+pretty.univ.results$pretty.names <- str_remove_all(pretty.univ.results$pretty.names, "__")
+
+rownames(pretty.univ.results) <- pretty.univ.results$pretty.names
+
+colnames(pretty.univ.results)[2:3] <- c("Pseudo-F", "p-value")
+
+
+
+pretty.univ.results[, c(1:4,6)] <-
+        lapply(pretty.univ.results[, c(1:4,6)], as.numeric) %>%
+        lapply(., round, digits = 3)
+
+knitr::kable(pretty.univ.results[, c(1:3,6)],
+             booktabs = TRUE,
+             "latex",
+             caption = "Univariate model results for bird effective species richness. Detection variables are tested alone; the percentage of overcast visits is used as a control variable.") %>%
+    kable_styling(full_width =F,
+              latex_options = c("striped"),
+              font_size = 10) %>%
+    column_spec(2:6, width = "5em")
+
+```
+

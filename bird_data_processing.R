@@ -167,6 +167,28 @@ remove(
                                 shrub.native$shrub.scientific.update[shrub.native$shrub.origin == "native"]]
 
         
+        dens.tree.sp.only.ornamental <-
+            dens.tree.sp.only[, colnames(dens.tree.sp.only) %in%
+                                  tree.native$tree.species[tree.native$tree.origin == "non.native"]]
+        
+        matrify.tree.sp.only.ornamental <-
+            matrify.tree.sp.only[, colnames(matrify.tree.sp.only) %in%
+                                     tree.native$tree.species[tree.native$tree.origin == "native"]]
+        
+        matrify.shrub.site.ornamental <-
+            matrify.shrub.site[, colnames(matrify.shrub.site) %in%
+                                   shrub.native$shrub.scientific.update[shrub.native$shrub.origin == "non-native"]]
+        
+        dens.shrub.site.ornamental <-
+            dens.shrub.site[, colnames(dens.shrub.site) %in%
+                                shrub.native$shrub.scientific.update[shrub.native$shrub.origin == "non-native"]]
+        
+        
+        
+        
+        
+        
+        
         
         tree.metrics <- tibble(
             site.abbr = rownames(matrify.tree.sp.only),
@@ -175,6 +197,8 @@ remove(
             tree.dens = rowSums(dens.tree.sp.only),
             tree.nat.dens = rowSums(dens.tree.sp.only.native),
             tree.nat.esr = exp(diversity(matrify.tree.sp.only.native)),
+            tree.orn.dens = rowSums(dens.tree.sp.only.ornamental),
+            tree.orn.esr = exp(diversity(matrify.tree.sp.only.ornamental)),
             conifer.nat.abundance = matrify.tree.sp.only$douglas.fir + 
                 matrify.tree.sp.only$western.hemlock +
                 matrify.tree.sp.only$western.red.cedar,
@@ -190,7 +214,9 @@ remove(
             shrub.nat.abundance = rowSums(matrify.shrub.site.native),
             shrub.dens = rowSums(dens.shrub.site),
             shrub.nat.dens = rowSums(dens.shrub.site.native),
-            shrub.nat.esr = exp(diversity(matrify.shrub.site.native))
+            shrub.nat.esr = exp(diversity(matrify.shrub.site.native)),
+            shrub.orn.dens = rowSums(dens.shrub.site.ornamental),
+            shrub.orn.esr = exp(diversity(matrify.shrub.site.ornamental))
         )
         
 
