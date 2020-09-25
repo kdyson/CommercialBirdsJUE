@@ -2,8 +2,7 @@
 
 This repository contains all of the data and code needed to replicate the following publication:
 
-**Conserving native trees increases native bird diversity and community composition on commercial office developments**
-Karen Dyson
+Dyson, K. 2020. **Conserving native trees increases native bird diversity and community composition on commercial office developments**
 Journal of Urban Ecology
 
 
