@@ -996,7 +996,7 @@ This research would not have been possible without the cooperation of the office
 
 # Data Availability
 
-All data and code will be available publicly on GitHub with DOI/ accession number assigned by Zenodo.
+All data and code to replicate the analysis and results reported in this manuscript can be found on GitHub with DOI:10.5281/zenodo.4048986.
 
 
 # Supplementary Information
